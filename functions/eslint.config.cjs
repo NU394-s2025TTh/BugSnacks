@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-require-imports */
 const simpleImportSort = require('eslint-plugin-simple-import-sort');
@@ -40,7 +41,7 @@ Object.keys(globals.node).forEach((key) => {
 
 module.exports = [
   {
-    ignores: ['**/node_modules/', '**/dist/', '**/*.log'],
+    ignores: ['**/node_modules/', '**/dist/', '**/*.log', '**/lib/'],
   },
   ...compat.extends(
     'eslint:recommended',

@@ -1,4 +1,5 @@
-import * as express from 'express';
+import cors from 'cors';
+import express from 'express';
 import { onRequest } from 'firebase-functions/v2/https';
 
 import bugReportRouter from './routes/BugReport';
@@ -7,16 +8,21 @@ import projectRouter from './routes/Project';
 import testRequestRouter from './routes/TestRequest';
 import userRouter from './routes/User';
 
-const app = express.default();
+const app = express();
+app.use(cors({ origin: true }));
 
-app.use('/bug-reports/', bugReportRouter);
-app.use('/projects/', projectRouter);
-app.use('/test-requests/', testRequestRouter);
-app.use('/users/', userRouter);
-app.use('/campuses/', campusRouter);
+app.use('/api/bug-reports/', bugReportRouter);
+app.use('/api/projects/', projectRouter);
+app.use('/api/test-requests/', testRequestRouter);
+app.use('/api/users/', userRouter);
+app.use('/api/campuses/', campusRouter);
 
-const main = express.default();
+app.get('/api/', (req, res) => {
+  res.status(200).send('BugSnacks API');
+});
 
-main.use('/api', app);
+app.get('/', (req, res) => {
+  res.status(200).send('BugSnacks API');
+});
 
-exports.main = onRequest(main);
+exports.main = onRequest(app);
