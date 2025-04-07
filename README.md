@@ -1,92 +1,56 @@
-# React Vitest Template
+# Vite + React + Typescript + Eslint + Prettier: an example repo Updated for 2025!
 
-A starter template for building React apps with Vite. Includes Vitest for unit testing and
-a hefty .gitignore file.
+A starter for React with Typescript with the fast Vite, Vitest and all static code testing with Eslint and formatting with Prettier. As of this writing updated to React 19; and the latest versions of all tools as of March 2025. This was built for use by the [Northwestern University CS394 Class taught by Todd Warren](https://toddwseattle.com/blog/2025-02-05-CS394-2025-Spring-Software-Engineering-Course/)
 
-# Requirements
+Once up and running it looks like this:
 
-Node 20 or greater.
+![Vite + React + Typescript + Vitest + Eslint + Prettier](/resources/2025-screenshot.png)
 
-## Usage
+You can find more about these in the following links: [Vite](https://vitejs.dev), [React](https://reactjs.org/), [Typescript](https://www.typescriptlang.org/), [Eslint](https://eslint.org/), [Prettier](https://prettier.io/), [Vitest](https://vitest.dev/)
 
-```
-mkdir your-app-name
-cd your-app-name
-npx degit criesbeck/react-vitest
-npm install
-```
-If the third step hangs after printing ``> cloned criesbeck/react-vitest#HEAD``, 
-just control-C to exit then run ``npm install``.
+## Installation
 
-## Test
-
-Verify that the initial app works. Run
+- Make sure you are running node 20 or later
+- npm 10.x or higher (comes with Node.js 20)
 
 ```
-npm start
+node --version
 ```
 
-and open the URL displayed.
+Clone the repo and run `npm install`
 
-Verify that the unit tests work with
-
-```
-npm test
-```
-
-Two tests should run and pass. 
-
-## Scripts
-
-**package.json** defines the following scripts:
-
-| Script           | Description                                         |
-| -----------------| --------------------------------------------------- |
-| npm start        | Runs the app in the development mode.               |
-| npm run dev      | Runs the app in the development mode.               |
-| npm run build    | Builds the app for production to the `dist` folder. |
-| npm run serve    | Serves the production build from the `dist` folder. |
-| npm test         | Starts a Jest-like test loop                        |
-| npm run coverage | Runs the tests, displays code coverage results      |
-
-
-## Git
-
-If everything is working, set up [your local and remote repositories](https://docs.github.com/en/get-started/importing-your-projects-to-github/importing-source-code-to-github/adding-locally-hosted-code-to-github#adding-a-local-repository-to-github-using-git).
-
-## Folder Structure
+or preferred Run command
 
 ```
-your-app-name
-├── node_modules
-├── public
-│   ├── favicon.svg
-│   └── robots.txt
-└── src
-    ├── App.css
-    ├── App.jsx
-    ├── index.css
-    ├── index.jsx
-    └── logo.svg
-├── .gitignore
-├── index.html
-├── package.json
-├── README.md
-├── vite.config.js
+npx degit toddwseattle/pretty-vitest-react-ts-template project-name
 ```
 
-## Credits
+this will create a clean version of the template in the `project-name` folder. omit project-name to create in the current directory. You will then need to initialize git yourself and push to github.
 
-React-Vitest built and maintained by [Chris Riesbeck](https://github.com/criesbeck).
+## Start
 
-Inspired by [SafdarJamal/vite-template-react](https://github.com/SafdarJamal/vite-template-react).
-Expanded to include Vitest and some sample tests.
+Install packages: `npm run dev`
 
-Thanks to Rich Harris for [degit](https://www.npmjs.com/package/degit).
+## Steps in Vscode
 
-Gitignore file created with [the Toptal tool](https://www.toptal.com/developers/gitignore/api/react,firebase,visualstudiocode,macos,windows).
+#### (works better with this template)
 
+1. Install Eslint and prettier extension for vs code (separate extensions; not the combined one)
+2. Make Sure Both are enabled
+3. Make sure all packages are Installed. (Mostly Eslint and prettier in node_modules)
+4. Enable formatOnSave of vs code
+5. Open a .tsx file and check if the bottom right corners of vs code have Eslint and Prettier with a double tick
 
-## License
+![Screenshot (253)_LI](https://user-images.githubusercontent.com/52120562/162486286-7383a737-d555-4f9b-a4dd-c4a81deb7b96.jpg)
 
-This project is licensed under the terms of the [MIT license](./LICENSE).
+If Everything is Good Then It Should Work, but let me new if something else happens.
+
+## pre-commit hook to lint files with eslint/prettier
+
+In this template, when you commit via `git commit` a [pre-commit hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) runs the command `npm run lint`, so that eslint and prettier are run and modify the files to conform. Consequently, you may end up with new changes after you commit! The easiest way to make sure you get a clean commit is to `npm run lint` before you commit.
+
+The npm command used in pre-commit is in the package.json key ` "pre-commit": "lint"`. Change or remove this as you see fit for your project.
+
+## Authorship and acknowledgments
+
+This was based on a [starter made with ❤️ by theSwordBreaker](https://github.com/TheSwordBreaker/vite-reactts-eslint-prettier). Thanks theSwordBreaker for the starter and vscode screenshots! It's been enhanced with vitest by toddwseattle using the best of the [js react starter](https://github.com/criesbeck/react-vitest) from [c-riesbeck](https://users.cs.northwestern.edu/~riesbeck/) for use by Northwestern University CS 394 students and others who like consistent looking typescript code.
