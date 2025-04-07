@@ -1,22 +1,59 @@
-name: Deploy to Live Channel
+name: Deploy to Firebase (bugsnacks2)
 
+# Controls when the workflow will run
 on:
   push:
     branches:
-      - main
-    # Optionally configure to run only for specific files. For example:
-    # paths:
-    # - "website/**"
+      - main # Deploy when changes are pushed to the main branch
+  workflow_dispatch: # Allows manual triggering from the Actions tab
 
 jobs:
-  deploy_live_website:
-    runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest # Use the latest Ubuntu runner
+
     steps:
-      - uses: actions/checkout@v4
-      # Add any build steps here. For example:
-      - run: npm ci && npm run build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      # 1. Checkout Repository Code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_BUGSNACKS2 }}"
-          projectId: bugsnacks2
-          channelId: live
+          node-version: '23' # Specify your desired Node.js version
+
+      # Optional: Install project dependencies (e.g., for Cloud Functions)
+      # Uncomment if you have dependencies in package.json (e.g., inside a functions folder)
+      # - name: Install Dependencies
+      #   run: npm ci # Or 'npm install' or 'yarn install'
+      #   # If your functions are in a subdirectory, specify the working directory:
+      #   # working-directory: ./functions
+
+      # 3. Decode Service Account Key and Set Environment Variable
+      - name: Create Service Account File
+        id: create_sa_file # Give this step an ID to reference its output if needed
+        # Use 'run' to execute shell commands
+        run: |
+          # Create a temporary file path
+          SA_FILE_PATH="${{ runner.temp }}/firebase-sa-key.json"
+          # Echo the secret content into the temporary file
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_BUGSNACKS2 }}' > $SA_FILE_PATH
+          # Set the environment variable for subsequent steps
+          # Using GITHUB_ENV allows the variable to persist across 'run' steps in the job
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${SA_FILE_PATH}" >> $GITHUB_ENV
+          echo "Created service account file at ${SA_FILE_PATH}"
+
+      # 4. Deploy to Firebase
+      - name: Deploy to Firebase
+        run: |
+          npx firebase-tools deploy --project bugsnacks2 --non-interactive  # Add other targets as needed (e.g., firestore:rules)
+          # Use --non-interactive to prevent prompts in CI
+          # Explicitly specify the --project ID - this is highly recommended in CI/CD!
+          # Specify exactly what to deploy with --only to avoid accidental deploys
+
+      # Optional: Cleanup the temporary service account file (runner is ephemeral anyway)
+      - name: Cleanup Service Account File
+        if: always() # Run this even if the deploy step fails
+        run: |
+          echo "Removing temporary service account file..."
+          rm -f ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
