@@ -15,6 +15,7 @@ import userRouter from './routes/User';
 
 const app = express();
 
+app.use(express.json());
 app.use(cors({ origin: false }));
 
 app.use('/api/bug-reports/', bugReportRouter);
