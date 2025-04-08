@@ -5,13 +5,14 @@
     "lint:format": "prettier  --log-level warn --write \"./**/*.{js,jsx,ts,tsx,css,md,json}\" ",
     "lint": "npm run lint:format && npm run lint:fix ",
     "build": "tsc",
+    "gcp-build": "tsc",
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "prepare": "ts-patch install"
+    "prepare": "npm install --save -g ts-patch typescript && ts-patch install -s"
   },
   "engines": {
     "node": "22"
@@ -22,11 +23,8 @@
     "express": "^5.1.0",
     "firebase": "^11.6.0",
     "firebase-admin": "^12.6.0",
-    "firebase-functions": "^6.3.2",
     "tough-cookie": "^4.1.4",
-    "typia": "^9.1.0"
-  },
-  "devDependencies": {
+    "typia": "^9.1.0",
     "@testing-library/react": "^16.2.0",
     "@types/express": "^5.0.1",
     "@types/react": "^19.0.10",
@@ -53,5 +51,6 @@
     "ts-patch": "^3.3.0",
     "typescript": "^5.4.3"
   },
+  "devDependencies": {},
   "private": true
 }
