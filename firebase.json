@@ -8,7 +8,7 @@
         "function": "main"
       }
     ],
-    "predeploy": ["npm ci --include=dev", "npm run-script build"]
+    "predeploy": ["npm ci --include dev", "npm run-script build"]
   },
   "functions": [
     {
