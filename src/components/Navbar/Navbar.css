@@ -1,0 +1,10 @@
+.navbar {
+  background-color: var(--dark-green);
+  color: white;
+  text-align: center;
+  padding: 2px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+}
