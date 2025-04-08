@@ -15,3 +15,8 @@ export enum BugReportStatus {
   REJECTED = 'REJECTED',
   REWARDED = 'REWARDED',
 }
+
+export enum RewardType {
+  GUEST_SWIPE = 'MEALSWIPE',
+  MEAL_EXCHANGE = 'MEAL_EXCHANGE',
+}

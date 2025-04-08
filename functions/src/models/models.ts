@@ -1,4 +1,9 @@
-import { BugReportSeverity, BugReportStatus, TestRequestStatus } from './enums';
+import {
+  BugReportSeverity,
+  BugReportStatus,
+  RewardType,
+  TestRequestStatus,
+} from './enums';
 
 // --- User Interface ---
 export interface User extends Record<string, unknown> {
@@ -10,10 +15,20 @@ export interface User extends Record<string, unknown> {
   readonly createdAt: Date; // Use JS Date object in the interface
 }
 
+export interface Reward extends Record<string, unknown> {
+  readonly rewardId: string; // Corresponds to Firestore Document ID
+  readonly name: string;
+  readonly description?: string;
+  readonly location: string;
+  readonly type: RewardType;
+  readonly time?: Date;
+}
+
 // --- Campus Interface ---
 export interface Campus extends Record<string, unknown> {
   readonly campusId: string; // Corresponds to Firestore Document ID
   readonly name: string;
+  readonly rewardLocations: Array<Reward>;
 }
 
 // --- Project Interface ---
@@ -23,7 +38,7 @@ export interface Project extends Record<string, unknown> {
   readonly campusId: string; // Foreign key to Campus
   readonly name: string;
   readonly description: string;
-  readonly platform: string;
+  readonly platform?: string;
   readonly createdAt: Date;
 }
 
@@ -35,7 +50,7 @@ export interface TestRequest extends Record<string, unknown> {
   readonly title: string;
   readonly description: string;
   readonly demoUrl: string;
-  readonly rewardDescription: string;
+  readonly reward: Reward | Array<Reward>;
   readonly status: TestRequestStatus;
   readonly createdAt: Date;
 }
@@ -48,6 +63,7 @@ export interface BugReport extends Record<string, unknown> {
   readonly title: string;
   readonly description: string; // Includes steps to reproduce
   readonly severity: BugReportSeverity;
+  readonly proposedReward: Reward;
   readonly status: BugReportStatus;
   readonly attachments: string[]; // List of IDs in Storage
   readonly createdAt: Date;
