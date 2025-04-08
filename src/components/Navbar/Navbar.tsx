@@ -1,16 +1,20 @@
 import './Navbar.css';
 
+import add from '../../assets/add.svg';
+import chat from '../../assets/chat.svg';
+import logo from '../../assets/logo.svg';
+
 function Navbar() {
   return (
     <div className="navbar">
       <div className="add">
-        <img src="src/assets/add.svg" alt="add symbol" />
+        <img src={add} alt="add symbol" />
       </div>
       <div className="logo">
-        <img src="src/assets/logo.svg" alt="logo" />
+        <img src={logo} alt="logo" />
       </div>
       <div className="chat">
-        <img src="src/assets/chat.svg" alt="chat" />
+        <img src={chat} alt="chat" />
       </div>
     </div>
   );
