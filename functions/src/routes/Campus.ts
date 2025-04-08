@@ -1,4 +1,7 @@
 import { Request, Response, Router } from 'express';
+import { createAssert } from 'typia';
+
+import { ParamsDictionary, validateRequest } from '../utils/typedreq';
 
 const campusRouter = Router();
 
@@ -33,19 +36,23 @@ const DiningMap: Record<string, Array<string>> = {
   northwestern1: NorthwesternCampusDining,
 };
 
-interface GetCampusRequest extends Request {
-  params: Required<{
-    campusId: string;
-  }>;
+interface GetCampusParams extends ParamsDictionary {
+  campusId: string;
 }
 
-campusRouter.get('/:campusId', (req: GetCampusRequest, res: Response) => {
-  const campusId = req.params.campusId;
-  const diningOptions = DiningMap[campusId];
-  if (!diningOptions) {
-    res.status(404).json({ error: 'campus not found' });
-  }
-  res.status(200).json(diningOptions);
-});
+campusRouter.get(
+  '/:campusId',
+  validateRequest({
+    params: createAssert<GetCampusParams>(),
+  }),
+  (req: Request<GetCampusParams, any, any, any>, res: Response) => {
+    const campusId = req.params.campusId;
+    const diningOptions = DiningMap[campusId];
+    if (!diningOptions) {
+      res.status(404).json({ error: 'campus not found' });
+    }
+    res.status(200).json(diningOptions);
+  },
+);
 
 export default campusRouter;
