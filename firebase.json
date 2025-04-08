@@ -8,7 +8,7 @@
         "function": "main"
       }
     ],
-    "predeploy": ["npm ci", "npm run-script build"]
+    "predeploy": ["npm ci --include=dev", "npm run-script build"]
   },
   "functions": [
     {
@@ -22,7 +22,7 @@
         "*.local"
       ],
       "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" ci",
+        "npm --prefix \"$RESOURCE_DIR\" ci --include=dev",
         "npm --prefix \"$RESOURCE_DIR\" run lint",
         "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
