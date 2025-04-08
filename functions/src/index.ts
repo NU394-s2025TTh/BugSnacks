@@ -1,5 +1,9 @@
 import cors from 'cors';
 import express from 'express';
+import * as admin from 'firebase-admin';
+
+admin.initializeApp();
+
 import { onRequest } from 'firebase-functions/v2/https';
 
 import bugReportRouter from './routes/BugReport';
@@ -9,7 +13,8 @@ import testRequestRouter from './routes/TestRequest';
 import userRouter from './routes/User';
 
 const app = express();
-app.use(cors({ origin: true }));
+
+app.use(cors({ origin: false }));
 
 app.use('/api/bug-reports/', bugReportRouter);
 app.use('/api/projects/', projectRouter);
