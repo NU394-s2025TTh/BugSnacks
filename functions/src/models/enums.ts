@@ -17,6 +17,6 @@ export enum BugReportStatus {
 }
 
 export enum RewardType {
-  GUEST_SWIPE = 'MEALSWIPE',
+  GUEST_SWIPE = 'GUEST_SWIPE',
   MEAL_EXCHANGE = 'MEAL_EXCHANGE',
 }
