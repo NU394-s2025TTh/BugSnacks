@@ -131,7 +131,7 @@ function AddBugs() {
               textAlign: 'center',
             }}
           >
-            <Alert type={alert.type}>
+            <Alert variant={alert.type === 'success' ? 'default' : 'destructive'}>
               <p>{alert.message}</p>
             </Alert>
             <button
