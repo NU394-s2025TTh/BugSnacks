@@ -3,16 +3,41 @@ import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-
+export enum TestRequestStatus {
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+}
+export enum RewardType {
+  GUEST_SWIPE = 'GUEST_SWIPE',
+  MEAL_EXCHANGE = 'MEAL_EXCHANGE',
+}
+export interface Reward extends Record<string, unknown> {
+  readonly name: string;
+  readonly description?: string;
+  readonly location: string;
+  readonly type: RewardType;
+  readonly time?: Date;
+}
+export interface TestRequest extends Record<string, unknown> {
+  readonly requestId: string; // Corresponds to Firestore Document ID
+  readonly projectId: string; // Foreign key to Project
+  readonly developerId: string; // Foreign key to User
+  readonly title: string;
+  readonly description: string;
+  readonly demoUrl: string;
+  readonly reward: Reward | Array<Reward>;
+  readonly status: TestRequestStatus;
+  readonly createdAt: Date;
+}
 function FoundBugs() {
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState<TestRequest[]>([]);
 
   useEffect(() => {
     console.log('useEffect hook is called');
     const getData = async () => {
       try {
         const response = await fetch(
-          'http://127.0.0.1:5001/bugsnacks2/us-central1/main/api/projects/1zEi0x2zAE4OzscvZjME/requests',
+          'https://main-rccov53xma-uc.a.run.app/api/projects/1zEi0x2zAE4OzscvZjME/requests',
         );
         const body = await response.json();
         setRequests(body);
@@ -43,7 +68,6 @@ function FoundBugs() {
       {requests.length > 0 ? (
         requests.map((request, index) => (
           <div key={index} className="mb-8">
-            {/* Display a header for each test request */}
             <h2 className="text-3xl font-semibold mb-4 text-center">
               Test Request {request.title}
             </h2>
