@@ -38,6 +38,10 @@ const DiningMap: Record<string, Array<string>> = {
   northwestern1: NorthwesternCampusDining,
 };
 
+campusRouter.get('/', (req: Request, res: Response) => {
+  res.status(200).json(Object.keys(DiningMap));
+});
+
 interface GetCampusParams extends ParamsDictionary {
   campusId: string;
 }
