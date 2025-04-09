@@ -8,7 +8,9 @@ function Navbar() {
   return (
     <div className="navbar">
       <div className="add">
-        <img src={add} alt="add symbol" />
+        <a href={`${window.location}addbug`}>
+          <img src={add} alt="add symbol" />
+        </a>
       </div>
       <div className="logo">
         <img src={logo} alt="logo" />
