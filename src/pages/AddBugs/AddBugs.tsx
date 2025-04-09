@@ -37,6 +37,7 @@ const formSchema = z.object({
   ]),
 
   video: z.any(),
+  attachment: z.any(),
 });
 type AddBugsForm = z.infer<typeof formSchema>;
 
@@ -46,7 +47,8 @@ function AddBugs() {
     defaultValues: {
       description: '',
       severity: BugReportSeverity.LOW,
-      video: null,
+      video: '',
+      attachment: '',
     },
   });
 
@@ -55,12 +57,29 @@ function AddBugs() {
       // Reference to the Firestore collection
       const bugsCollection = collection(db, 'bugReports');
 
+      // Generate backend data
+      const reportId = crypto.randomUUID(); // Generate a unique ID for the report
+      const requestId = 'testRequest123'; // Replace with the actual TestRequest ID when we get to that step
+      const testerId = 'user123'; // Replace with the actual User ID when we get to that step
+      const proposedReward = 'Burger at Sarge'; // Example reward, modify when we get their
+      const status = 'open'; // Default status for a new bug report
+      const attachments = {}; // Handle file uploads separately if needed
+      const test = 'Ultimate Frisbee QA'; // Example test, modify when we get their
+
       // Add the form data to the Firestore collection
       await addDoc(bugsCollection, {
+        reportId,
+        requestId,
+        testerId,
+        test,
         description: data.description,
         severity: data.severity,
+        proposedReward,
+        status,
+        attachments,
         video: data.video ? data.video.name : null, // Store the file name or handle file upload separately
         createdAt: new Date(), // Add a timestamp
+        VerifiedBug: false, // Default value for isVerified
       });
 
       console.log('Bug report successfully submitted:', data);
@@ -128,6 +147,23 @@ function AddBugs() {
                 </FormControl>
                 <FormDescription>
                   Upload relevant video explaining the bug.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="attachment"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Attachment</FormLabel>
+                <FormControl>
+                  <Input type="file" multiple {...field} />
+                </FormControl>
+                <FormDescription>
+                  Upload relevant other relevant files explaining the bug.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
