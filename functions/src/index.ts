@@ -15,7 +15,7 @@ import userRouter from './routes/User';
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: false }));
+app.use(cors());
 
 app.use('/api/bug-reports/', bugReportRouter);
 app.use('/api/projects/', projectRouter);
@@ -31,4 +31,4 @@ app.get('/', (req, res) => {
   res.status(200).send('BugSnacks API');
 });
 
-exports.main = onRequest(app);
+exports.main = onRequest({ cors: true }, app);
