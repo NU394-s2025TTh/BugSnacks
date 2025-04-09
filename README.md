@@ -172,6 +172,11 @@ _todo_
 
 ### Campuses (`/api/campuses/`)
 
+- `GET /api/campuses/`
+
+  - Description: Retrieves list of valid campusIds
+  - Response: `200 OK` - Array of `campusId` strings.
+
 - `GET /api/campuses/{campusId}`
 
   - Description: Retrieves dining options for a specific campus.
