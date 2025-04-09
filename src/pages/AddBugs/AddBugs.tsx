@@ -38,7 +38,7 @@ const formSchema = z.object({
 });
 type AddBugsForm = z.infer<typeof formSchema>;
 
-function BugReportForm() {
+function AddBugs() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -123,4 +123,4 @@ function BugReportForm() {
     </div>
   );
 }
-export default BugReportForm;
+export default AddBugs;
