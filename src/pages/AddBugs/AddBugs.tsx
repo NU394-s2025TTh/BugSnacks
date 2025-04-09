@@ -2,6 +2,7 @@
 import './AddBugs.css';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { addDoc, collection } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { db } from '@/firebaseConfig';
 
 export enum BugReportSeverity {
   LOW = 'Low',
@@ -48,8 +50,25 @@ function AddBugs() {
     },
   });
 
-  const onSubmit = (data: AddBugsForm) => {
-    console.log('Form submitted with data:', data);
+  const onSubmit = async (data: AddBugsForm) => {
+    try {
+      // Reference to the Firestore collection
+      const bugsCollection = collection(db, 'bugReports');
+
+      // Add the form data to the Firestore collection
+      await addDoc(bugsCollection, {
+        description: data.description,
+        severity: data.severity,
+        video: data.video ? data.video.name : null, // Store the file name or handle file upload separately
+        createdAt: new Date(), // Add a timestamp
+      });
+
+      console.log('Bug report successfully submitted:', data);
+      alert('Bug report submitted successfully!');
+    } catch (error) {
+      console.error('Error submitting bug report:', error);
+      alert('Failed to submit bug report. Please try again.');
+    }
   };
 
   return (
