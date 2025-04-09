@@ -1,12 +1,24 @@
+import { Link } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 function FoundBugs() {
   return (
     <div>
-      <h1 className="flex justify-center text-5xl p-5 font-semibold font-sans text-[color:var(--type-green)]">
-        Found Bugs
-      </h1>
+      <div className="flex items-center">
+        <div className="w-1/3" />
+        <div className="flex justify-center text-5xl p-5 font-semibold font-sans text-[color:var(--type-green)] w-1/3 text-center">
+          Found Bugs
+        </div>
+        <div className="w-1/3 flex-1 flex justify-end mr-4">
+          <Link to="/addbug">
+            <Button className="rounded-3xl text-2xl bg-green-300 p-6 text-black font-semibold ">
+              Report a Bug!
+            </Button>
+          </Link>
+        </div>
+      </div>
       <div className="flex justify-center">
         <Card className="w-[90%] md:w-1/2 bg-[color:var(--little-gray)] rounded-3xl">
           <CardHeader className="flex md:flex-row justify-between flex-col">

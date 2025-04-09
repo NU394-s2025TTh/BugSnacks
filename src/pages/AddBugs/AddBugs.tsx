@@ -29,6 +29,7 @@ export enum BugReportSeverity {
 }
 
 const formSchema = z.object({
+  title: z.string().min(1, { message: 'Title is required' }),
   description: z
     .string()
     .min(10, { message: 'Description must be at least 10 characters.' }),
@@ -47,6 +48,7 @@ function AddBugs() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      title: '',
       description: '',
       severity: BugReportSeverity.LOW,
       video: '',
@@ -71,7 +73,7 @@ function AddBugs() {
       const proposedReward = 'Burger at Sarge'; // Example reward, modify when we get their
       const status = 'open'; // Default status for a new bug report
       const attachments = {}; // Handle file uploads separately if needed
-      const test = 'Ultimate Frisbee QA'; // Example test, modify when we get their
+      const test = data.title; // Example test, modify when we get their
 
       // Add the form data to the Firestore collection
       await addDoc(bugsCollection, {
@@ -154,6 +156,21 @@ function AddBugs() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="404 error" {...field} />
+                </FormControl>
+                <FormDescription>Enter the title of the bug.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="description"
