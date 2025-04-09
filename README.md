@@ -1,56 +1,186 @@
-# Vite + React + Typescript + Eslint + Prettier: an example repo Updated for 2025!
+# BugSnacks - Team Purple
 
-A starter for React with Typescript with the fast Vite, Vitest and all static code testing with Eslint and formatting with Prettier. As of this writing updated to React 19; and the latest versions of all tools as of March 2025. This was built for use by the [Northwestern University CS394 Class taught by Todd Warren](https://toddwseattle.com/blog/2025-02-05-CS394-2025-Spring-Software-Engineering-Course/)
+## UI Info
 
-Once up and running it looks like this:
+_todo_
 
-![Vite + React + Typescript + Vitest + Eslint + Prettier](/resources/2025-screenshot.png)
+## API Schema
 
-You can find more about these in the following links: [Vite](https://vitejs.dev), [React](https://reactjs.org/), [Typescript](https://www.typescriptlang.org/), [Eslint](https://eslint.org/), [Prettier](https://prettier.io/), [Vitest](https://vitest.dev/)
+**Base Path:** `/api/`
 
-## Installation
+### Root
 
-- Make sure you are running node 20 or later
-- npm 10.x or higher (comes with Node.js 20)
+- `GET /api/`
+  - Description: Returns a simple API identifier string.
+  - Response: `200 OK` - "BugSnacks API"
 
-```
-node --version
-```
+### Projects (`/api/projects/`)
 
-Clone the repo and run `npm install`
+- `POST /api/projects/`
 
-or preferred Run command
+  - Description: Creates a new project.
+  - Request Body (`CreateProjectRequestBody`):
+    - `name`: string
+    - `userId`: string
+    - `description`: string
+    - `campusId`: string
+  - Response: `201 Created` - `{ message: 'Project created successfully', projectId: '...' }` or `500 Error`
 
-```
-npx degit toddwseattle/pretty-vitest-react-ts-template project-name
-```
+- `GET /api/projects/{id}`
 
-this will create a clean version of the template in the `project-name` folder. omit project-name to create in the current directory. You will then need to initialize git yourself and push to github.
+  - Description: Retrieves a specific project by its ID.
+  - Path Parameter: `id` (string) - The ID of the project.
+  - Response: `200 OK` - Project data object or `404 Not Found` / `500 Error`
 
-## Start
+- `PATCH /api/projects/{id}`
 
-Install packages: `npm run dev`
+  - Description: Updates fields of a specific project.
+  - Path Parameter: `id` (string) - The ID of the project.
+  - Request Body (`Omit<Partial<Project>, 'projectId' | 'developerId' | 'createdAt'>`): Object containing fields to update (e.g., `name`, `description`, `campusId`).
+  - Response: `200 OK` - `{ message: 'Project updated successfully', status: ... }` or `404 Not Found` / `500 Error`
 
-## Steps in Vscode
+- `DELETE /api/projects/{id}`
 
-#### (works better with this template)
+  - Description: Deletes a specific project by its ID.
+  - Path Parameter: `id` (string) - The ID of the project.
+  - Response: `200 OK` - `{ message: 'Project deleted successfully' }` or `404 Not Found` / `500 Error`
 
-1. Install Eslint and prettier extension for vs code (separate extensions; not the combined one)
-2. Make Sure Both are enabled
-3. Make sure all packages are Installed. (Mostly Eslint and prettier in node_modules)
-4. Enable formatOnSave of vs code
-5. Open a .tsx file and check if the bottom right corners of vs code have Eslint and Prettier with a double tick
+- `GET /api/projects/{id}/requests`
 
-![Screenshot (253)_LI](https://user-images.githubusercontent.com/52120562/162486286-7383a737-d555-4f9b-a4dd-c4a81deb7b96.jpg)
+  - Description: Retrieves all test requests associated with a specific project.
+  - Path Parameter: `id` (string) - The ID of the project.
+  - Response: `200 OK` - Array of test request objects or `404 Not Found` / `500 Error`
 
-If Everything is Good Then It Should Work, but let me new if something else happens.
+- `GET /api/projects/`
+  - Description: Returns a simple identifier string for the project routes.
+  - Response: `200 OK` - "Hello Project!"
 
-## pre-commit hook to lint files with eslint/prettier
+### Users (`/api/users/`)
 
-In this template, when you commit via `git commit` a [pre-commit hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) runs the command `npm run lint`, so that eslint and prettier are run and modify the files to conform. Consequently, you may end up with new changes after you commit! The easiest way to make sure you get a clean commit is to `npm run lint` before you commit.
+- `POST /api/users/`
 
-The npm command used in pre-commit is in the package.json key ` "pre-commit": "lint"`. Change or remove this as you see fit for your project.
+  - Description: Creates a new user. (**Note:** Code currently saves to 'bugs' collection due to `userCollection` initialization).
+  - Request Body (`CreateUserRequestBody`):
+    - `name`: string
+    - `email`: string
+    - `campusId`: string
+  - Response: `201 Created` - `{ message: 'User created successfully', userId: '...' }` or `500 Error`
 
-## Authorship and acknowledgments
+- `GET /api/users/{id}`
 
-This was based on a [starter made with ❤️ by theSwordBreaker](https://github.com/TheSwordBreaker/vite-reactts-eslint-prettier). Thanks theSwordBreaker for the starter and vscode screenshots! It's been enhanced with vitest by toddwseattle using the best of the [js react starter](https://github.com/criesbeck/react-vitest) from [c-riesbeck](https://users.cs.northwestern.edu/~riesbeck/) for use by Northwestern University CS 394 students and others who like consistent looking typescript code.
+  - Description: Retrieves a specific user by ID. (**Note:** Code currently reads from 'bugs' collection).
+  - Path Parameter: `id` (string) - The ID of the user.
+  - Response: `200 OK` - User data object or `404 Not Found` / `500 Error`
+
+- `PATCH /api/users/{id}`
+
+  - Description: Updates fields of a specific user. (**Note:** Code currently updates in 'bugs' collection).
+  - Path Parameter: `id` (string) - The ID of the user.
+  - Request Body (`Partial<Omit<User, 'userId' | 'createdAt'>>`): Object containing fields to update (e.g., `name`, `email`, `campusId`).
+  - Response: `200 OK` - `{ message: 'User updated successfully', status: ... }` or `404 Not Found` / `500 Error`
+
+- `DELETE /api/users/{id}`
+
+  - Description: Deletes a specific user by ID. (**Note:** Code currently deletes from 'bugs' collection).
+  - Path Parameter: `id` (string) - The ID of the user.
+  - Response: `200 OK` - `{ message: 'User deleted successfully' }` or `404 Not Found` / `500 Error`
+
+- `GET /api/users/{id}/projects`
+
+  - Description: Retrieves all projects associated with a specific user (developer).
+  - Path Parameter: `id` (string) - The ID of the user (developer).
+  - Response: `200 OK` - Array of project objects or `404 Not Found` / `500 Error`
+
+- `GET /api/users/{id}/bugReports`
+
+  - Description: Retrieves all bug reports submitted by a specific user (tester).
+  - Path Parameter: `id` (string) - The ID of the user (tester).
+  - Response: `200 OK` - Array of bug report objects or `404 Not Found` / `500 Error`
+
+- `GET /api/users/`
+  - Description: Returns a simple identifier string for the user routes.
+  - Response: `200 OK` - "Hello Users!"
+
+### Test Requests (`/api/test-requests/`)
+
+- `POST /api/test-requests/`
+
+  - Description: Creates a new test request.
+  - Request Body (`CreateTestRequestBody`):
+    - `projectId`: string
+    - `developerId`: string
+    - `title`: string
+    - `description`: string
+    - `demoUrl`: string
+    - `reward`: `Reward` | `Array<Reward>`
+    - `status`: `TestRequestStatus` (enum)
+  - Response: `201 Created` - `{ message: 'Test request created successfully', requestId: '...' }` or `500 Error`
+
+- `GET /api/test-requests/{id}`
+
+  - Description: Retrieves a specific test request by its ID.
+  - Path Parameter: `id` (string) - The ID of the test request.
+  - Response: `200 OK` - Test request data object or `404 Not Found` / `500 Error`
+
+- `PATCH /api/test-requests/{id}`
+
+  - Description: Updates fields of a specific test request.
+  - Path Parameter: `id` (string) - The ID of the test request.
+  - Request Body (`Omit<Partial<TestRequest>, 'requestId' | 'projectId' | 'developerId' | 'createdAt'>`): Object containing fields to update (e.g., `title`, `description`, `demoUrl`, `reward`, `status`).
+  - Response: `200 OK` - `{ message: 'Test request updated successfully' }` or `404 Not Found` / `500 Error`
+
+- `DELETE /api/test-requests/{id}`
+
+  - Description: Deletes a specific test request by its ID.
+  - Path Parameter: `id` (string) - The ID of the test request.
+  - Response: `200 OK` - `{ message: 'Test request deleted successfully' }` or `404 Not Found` / `500 Error`
+
+- `GET /api/test-requests/{id}/bugs`
+
+  - Description: Retrieves all bug reports associated with a specific test request.
+  - Path Parameter: `id` (string) - The ID of the test request.
+  - Response: `200 OK` - Array of bug report objects or `404 Not Found` / `500 Error`
+
+- `GET /api/test-requests/`
+  - Description: Returns a simple identifier string for the test request routes.
+  - Response: `200 OK` - "Hello TestRequest!"
+
+### Bug Reports (`/api/bug-reports/`)
+
+- `GET /api/bug-reports/{id}`
+
+  - Description: Retrieves a specific bug report by its ID.
+  - Path Parameter: `id` (string) - The ID of the bug report.
+  - Response: `200 OK` - Bug report data object or `404 Not Found` / `500 Error`
+
+- `PATCH /api/bug-reports/{id}`
+
+  - Description: Updates fields of a specific bug report.
+  - Path Parameter: `id` (string) - The ID of the bug report.
+  - Request Body (`Omit<Partial<BugReport>, 'reportId' | 'testerId' | 'createdAt'>`): Object containing fields to update.
+  - Response: `200 OK` - `{ message: 'Bug report updated successfully' }` or `404 Not Found` / `500 Error`
+
+- `DELETE /api/bug-reports/{id}`
+
+  - Description: Deletes a specific bug report by its ID.
+  - Path Parameter: `id` (string) - The ID of the bug report.
+  - Response: `200 OK` - `{ message: 'Bug report deleted successfully' }` or `404 Not Found` / `500 Error`
+
+- `GET /api/bug-reports/`
+  - Description: Returns a simple identifier string for the bug report routes.
+  - Response: `200 OK` - "Hello BugReporter!"
+
+### Campuses (`/api/campuses/`)
+
+- `GET /api/campuses/{campusId}`
+
+  - Description: Retrieves dining options for a specific campus.
+  - Path Parameter: `campusId` (string) - The ID of the campus (e.g., "northwestern1").
+  - Response: `200 OK` - Array of dining location strings or `404 Not Found`
+
+- `GET /api/campuses/{campusId}/rewards`
+  - Description: Retrieves a generated list of potential rewards based on dining options for a specific campus.
+  - Path Parameter: `campusId` (string) - The ID of the campus.
+  - Response: `200 OK` - Array of `Reward` objects or `404 Not Found`
+
+---

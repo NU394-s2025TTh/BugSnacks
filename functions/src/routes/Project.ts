@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response, Router } from 'express';
 import * as admin from 'firebase-admin';
 import { assert, createAssert } from 'typia';
@@ -120,6 +119,39 @@ projectRouter.delete(
     } catch (error) {
       console.error('Error deleting project:', error);
       res.status(500).json({ error: 'Error deleting project' });
+    }
+  },
+);
+
+// query for all testRequests
+
+const testRequestCollection = db.collection('testRequests');
+
+interface GetProjectsTestRequestParams extends ParamsDictionary {
+  id: string;
+}
+
+projectRouter.get(
+  '/:id/requests',
+  validateRequest({ params: createAssert<GetProjectsTestRequestParams>() }),
+  async (req: Request<GetProjectsTestRequestParams, any, any, any>, res: Response) => {
+    const { id } = req.params;
+    try {
+      const testRequestsSnapshot = await testRequestCollection
+        .where('projectId', '==', id)
+        .get();
+      if (testRequestsSnapshot.empty) {
+        res.status(404).json({ error: 'No test requests found for this project' });
+      } else {
+        const testRequestsArray = testRequestsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        res.status(200).json(testRequestsArray);
+      }
+    } catch (error) {
+      console.error('Error fetching test requests:', error);
+      res.status(500).json({ error: 'Error fetching test requests' });
     }
   },
 );

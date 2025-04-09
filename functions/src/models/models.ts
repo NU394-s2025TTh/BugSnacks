@@ -8,7 +8,6 @@ import {
 // --- User Interface ---
 export interface User extends Record<string, unknown> {
   readonly userId: string; // Corresponds to Firestore Document ID
-  readonly username: string;
   readonly email: string;
   readonly campusId: string;
   readonly name?: string; // Optional display name
@@ -16,7 +15,6 @@ export interface User extends Record<string, unknown> {
 }
 
 export interface Reward extends Record<string, unknown> {
-  readonly rewardId: string; // Corresponds to Firestore Document ID
   readonly name: string;
   readonly description?: string;
   readonly location: string;
