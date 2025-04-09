@@ -1,38 +1,46 @@
+import './FoundBugs.css';
+
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 function FoundBugs() {
   return (
-    <Card className="w-[350px]">
-      <CardHeader>
-        <CardTitle>Create project</CardTitle>
-        <CardDescription>Deploy your new project in one-click.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form>
-          <div className="grid w-full items-center gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">Name</Label>
+    <div>
+      <h1 className="flex justify-center text-6xl p-3 font-semibold font-sans">
+        Found Bugs
+      </h1>
+      <div className="flex justify-center">
+        <Card className="card bg-gray-200 rounded-3xl">
+          <CardHeader className="flex justify-between">
+            <div className="bg-gray-300 p-3 rounded-3xl text-4xl font-semibold">
+              Login 404s
             </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="framework">Framework</Label>
+            <div className="flex flex-col">
+              <div className="bg-gray-200 text-2xl italic">Proposed reward time</div>
+              <div className="bg-gray-200 text-2xl font-semibold text-right">
+                Tomorrow @ 4
+              </div>
             </div>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline">Cancel</Button>
-        <Button>Deploy</Button>
-      </CardFooter>
-    </Card>
+          </CardHeader>
+          <CardContent>
+            <video width="480" height="360" className="rounded-lg mx-auto" controls>
+              <source src="movie.mp4" type="video/mp4" />
+              <track
+                src="fgsubtitles_en.vtt"
+                kind="captions"
+                srcLang="en"
+                label="English"
+              />
+            </video>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button className="rounded-3xl text-2xl bg-green-600 p-6 text-black font-semibold">
+              View Details
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    </div>
   );
 }
 
