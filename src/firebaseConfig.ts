@@ -3,13 +3,13 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyAdjxX1g_EMcKs2nOb6SMtSLwug0eCbIdA",
+  authDomain: "bugsnacks2.firebaseapp.com",
+  projectId: "bugsnacks2",
+  storageBucket: "bugsnacks2.firebasestorage.app",
+  messagingSenderId: "1037797028766",
+  appId: "1:1037797028766:web:63787b3f9c556729f81c8f",
+  measurementId: "G-6LHJWXXL6H"
 };
 
 // Initialize Firebase
