@@ -20,35 +20,31 @@ interface CreateProjectRequestBody {
   campusId: string;
 }
 
-projectRouter
-  .route('/')
-  .post(
-    validateRequest({ body: createAssert<CreateProjectRequestBody>() }),
-    async (req: Request<any, any, CreateProjectRequestBody, any>, res: Response) => {
-      const { name, userId, description, campusId } = req.body;
-      const developerId = userId; // Assuming userId is set in the request
-      const createdAt = new Date();
-      const projectId = projectCollection.doc().id; // Generate a new document ID
-      const projectData = {
-        projectId,
-        developerId,
-        campusId,
-        name,
-        description,
-        createdAt,
-      };
-      try {
-        await projectCollection.doc(projectId).set(projectData);
-        res.status(201).json({ message: 'Project created successfully', projectId });
-      } catch (error) {
-        console.error('Error creating project:', error);
-        res.status(500).json({ error: 'Error creating project' });
-      }
-    },
-  )
-  .get((req, res) => {
-    res.send('Hello Project!');
-  });
+projectRouter.post(
+  '/',
+  validateRequest({ body: createAssert<CreateProjectRequestBody>() }),
+  async (req: Request<any, any, CreateProjectRequestBody, any>, res: Response) => {
+    const { name, userId, description, campusId } = req.body;
+    const developerId = userId; // Assuming userId is set in the request
+    const createdAt = new Date();
+    const projectId = projectCollection.doc().id; // Generate a new document ID
+    const projectData = {
+      projectId,
+      developerId,
+      campusId,
+      name,
+      description,
+      createdAt,
+    };
+    try {
+      await projectCollection.doc(projectId).set(projectData);
+      res.status(201).json({ message: 'Project created successfully', projectId });
+    } catch (error) {
+      console.error('Error creating project:', error);
+      res.status(500).json({ error: 'Error creating project' });
+    }
+  },
+);
 
 // GET: Get project by id
 
@@ -127,5 +123,9 @@ projectRouter.delete(
     }
   },
 );
+
+projectRouter.get('/', (req, res) => {
+  res.send('Hello Project!');
+});
 
 export default projectRouter;
