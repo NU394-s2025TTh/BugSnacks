@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import Layout from './components/Layout/Layout';
 import AddBugs from './pages/AddBugs/AddBugs';
+import AddProject from './pages/AddProject/AddProject';
 import FoundBugs from './pages/FoundBugs/FoundBugs';
 import Rewards from './pages/Rewards/Rewards';
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Rewards />} />
             <Route path="bugs" element={<FoundBugs />} />
+            <Route path="addProject" element={<AddProject />} />
             <Route path="addbug/:requestId" element={<AddBugs />} />
           </Route>
         </Routes>

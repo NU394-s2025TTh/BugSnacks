@@ -24,6 +24,8 @@ _todo_
     - `userId`: string
     - `description`: string
     - `campusId`: string
+    - `link`: string
+    - `reward`: RewardType
   - Response: `201 Created` - `{ message: 'Project created successfully', projectId: '...' }` or `500 Error`
 
 - `GET /api/projects/{id}`

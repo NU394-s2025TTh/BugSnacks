@@ -18,6 +18,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { storage } from '@/firebaseConfig';
 
@@ -27,8 +34,14 @@ const formSchema = z.object({
   description: z
     .string()
     .min(10, { message: 'Description must be at least 10 characters.' }),
-  video: z.any(),
   attachment: z.any(),
+  rewardName: z.string().min(1, { message: 'Reward name is required' }),
+  rewardDescription: z.string().min(1, { message: 'Reward description is required' }),
+  rewardLocation: z.string().min(1, { message: 'Reward location is required' }),
+  rewardType: z.string().min(1, { message: 'Reward time is required' }),
+  rewardTime: z.string().min(1, { message: 'Reward time is required' }),
+  link: z.string().url({ message: 'Invalid URL' }),
+  campusId: z.string().min(1, { message: 'Campus ID is required' }),
 });
 type AddProjectForm = z.infer<typeof formSchema>;
 
@@ -41,8 +54,14 @@ function AddProject() {
     defaultValues: {
       title: '',
       description: '',
-      video: '',
       attachment: '',
+      rewardName: '',
+      rewardDescription: '',
+      rewardLocation: '',
+      rewardType: '',
+      rewardTime: '',
+      link: '',
+      campusId: '',
     },
   });
 
@@ -50,19 +69,10 @@ function AddProject() {
     try {
       const uploadedFiles: string[] = [];
 
-      // Upload video file
-      if (data.video && data.video[0]) {
-        const videoFile = data.video[0];
-        const videoRef = ref(storage, `BugVideos/${videoFile.name}`);
-        await uploadBytes(videoRef, videoFile);
-        const videoURL = await getDownloadURL(videoRef);
-        uploadedFiles.push(videoURL);
-      }
-
       // Upload attachment files
       if (data.attachment && data.attachment.length > 0) {
         for (const file of data.attachment) {
-          const fileRef = ref(storage, `BugAttachments/${file.name}`);
+          const fileRef = ref(storage, `ProjectAttachments/${file.name}`);
           await uploadBytes(fileRef, file);
           const fileURL = await getDownloadURL(fileRef);
           uploadedFiles.push(fileURL);
@@ -72,28 +82,26 @@ function AddProject() {
       // Log or send the uploaded file URLs to your backend
       console.log('Uploaded files:', uploadedFiles);
 
-      const videoFileName =
-        data.video && data.video.length > 0 ? data.video[0].name : null;
       const attachmentFileName =
         data.attachment && data.attachment.length > 0 ? data.attachment[0].name : null;
 
       const payload = {
         requestId: requestId,
-        testerId: 'random_tester', // Replace with the actual tester id.
+        developerId: 'developerId', // Replace with actual developer ID
+        campusId: data.campusId,
         title: data.title,
         proposedReward: {
-          name: 'string',
-          description: 'string',
-          location: 'string',
-          type: 'GUEST_SWIPE',
-          time: new Date(),
+          name: data.rewardName,
+          description: data.rewardDescription,
+          location: data.rewardLocation,
+          type: data.rewardType,
+          time: data.rewardTime,
         },
         description: data.description,
-        video: videoFileName,
         attachments: attachmentFileName ? [attachmentFileName] : [],
       };
 
-      const response = await fetch('https://bugsnacks2.web.app/api/bug-reports/', {
+      const response = await fetch('https://bugsnacks2.web.app/api/projects/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,11 +115,11 @@ function AddProject() {
       }
 
       const responseData = await response.json();
-      console.log('Bug report successfully submitted:', responseData);
-      alert('Bug report submitted successfully!');
+      console.log('project successfully submitted:', responseData);
+      alert('project submitted successfully!');
     } catch (error) {
-      console.error('Error submitting bug report:', error);
-      alert('Failed to submit bug report. Please try again.');
+      console.error('Error submitting project:', error);
+      alert('Failed to submit project. Please try again.');
     }
   };
 
@@ -149,6 +157,129 @@ function AddProject() {
                 </FormControl>
                 <FormDescription>
                   Please provide a detailed descriptio of the project.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Link Field */}
+          <FormField
+            control={form.control}
+            name="link"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Link</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Enter project link..." {...field} />
+                </FormControl>
+                <FormDescription>
+                  Please provide a link of the application.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Campus Field */}
+          <FormField
+            control={form.control}
+            name="campusId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>School</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="northwestern1">Northwestern</SelectItem>
+                      {/* Add more options as needed */}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormDescription>Please write the name of your school.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Reward Name Field */}
+          <FormField
+            control={form.control}
+            name="rewardName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Reward</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Enter your reward name..." {...field} />
+                </FormControl>
+                <FormDescription>Please provide the name of your reward.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Reward Description Field */}
+          <FormField
+            control={form.control}
+            name="rewardDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Reward Description</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Enter your reward description..." {...field} />
+                </FormControl>
+                <FormDescription>
+                  Please provide a detailed description of your reward.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Reward Time Field */}
+          <FormField
+            control={form.control}
+            name="rewardTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Reward Time</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Enter your reward time..." {...field} />
+                </FormControl>
+                <FormDescription>
+                  Please provide a time for delivery of your reward.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="rewardLocation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Reward Location</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="library">Library</SelectItem>
+                      <SelectItem value="cafeteria">Cafeteria</SelectItem>
+                      <SelectItem value="gym">Gym</SelectItem>
+                      {/* Add more options as needed */}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormDescription>
+                  Please choose where the reward can be claimed.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

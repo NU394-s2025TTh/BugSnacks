@@ -38,8 +38,8 @@ const data = {
       url: '#',
       items: [
         {
-          title: 'Your Projects',
-          url: '#',
+          title: 'Add a Project',
+          url: `${window.origin}/addProject`,
         },
         {
           title: 'Manage Bugs',
