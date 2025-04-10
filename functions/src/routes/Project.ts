@@ -12,18 +12,22 @@ const projectCollection = db.collection('projects');
 
 // POST: Create project
 
+import { Reward } from '../models/models';
+
 interface CreateProjectRequestBody {
   name: string;
   userId: string;
   description: string;
   campusId: string;
+  reward?: Reward | Array<Reward>;
+  link: string;
 }
 
 projectRouter.post(
   '/',
   validateRequest({ body: createAssert<CreateProjectRequestBody>() }),
   async (req: Request<any, any, CreateProjectRequestBody, any>, res: Response) => {
-    const { name, userId, description, campusId } = req.body;
+    const { name, userId, description, campusId, reward, link } = req.body;
     const developerId = userId; // Assuming userId is set in the request
     const createdAt = new Date();
     const projectId = projectCollection.doc().id; // Generate a new document ID
@@ -34,6 +38,8 @@ projectRouter.post(
       name,
       description,
       createdAt,
+      reward,
+      link,
     };
     try {
       await projectCollection.doc(projectId).set(projectData);
