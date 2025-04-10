@@ -29,7 +29,7 @@ const data = {
         },
         {
           title: 'Add a Bug!',
-          url: `${window.origin}/addBug`, // add /projects to this url once page (and route) are created
+          url: `${window.origin}/addbug`, // add /projects to this url once page (and route) are created
         },
       ],
     },

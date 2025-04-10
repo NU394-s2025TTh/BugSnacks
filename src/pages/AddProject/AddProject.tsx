@@ -34,7 +34,12 @@ const formSchema = z.object({
   description: z
     .string()
     .min(10, { message: 'Description must be at least 10 characters.' }),
-  attachment: z.any(),
+  attachment: z
+    .custom<FileList | null | undefined>()
+    .optional()
+    .refine((files) => !files || files.length > 0, {
+      message: 'Attachment must include at least one file',
+    }),
   rewardName: z.string().min(1, { message: 'Reward name is required' }),
   rewardDescription: z.string().min(1, { message: 'Reward description is required' }),
   rewardLocation: z.string().min(1, { message: 'Reward location is required' }),

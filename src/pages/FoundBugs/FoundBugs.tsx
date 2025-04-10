@@ -39,7 +39,7 @@ function FoundBugs() {
     const getData = async () => {
       try {
         const response = await fetch(
-          'https://main-rccov53xma-uc.a.run.app/api/projects/1zEi0x2zAE4OzscvZjME/requests',
+          'https://main-rccov53xma-uc.a.run.app/api/projects/XeuiBb2Tn97KXgw76gzh/requests',
         );
         const body = await response.json();
         setRequests(body);
@@ -69,7 +69,7 @@ function FoundBugs() {
             </h2>
             {/* Report Bug Button for this test request */}
             <div className="flex justify-end mb-4 mr-4">
-              <Link to={`/addbug/${request.requestId}`}>
+              <Link to={`/addBug/${request.requestId}`}>
                 <Button className="rounded-3xl text-2xl bg-blue-400 p-3 text-white font-semibold">
                   Report Bug for this Request
                 </Button>
