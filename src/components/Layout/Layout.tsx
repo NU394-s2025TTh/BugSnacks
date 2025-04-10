@@ -1,14 +1,16 @@
 import { Outlet } from 'react-router-dom';
 
-import Navbar from '../Navbar/Navbar';
+import { AppSidebar } from '@/components/ui/app-sidebar';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 
 export default function Layout() {
   return (
-    <>
-      <Navbar />
-      <main className="">
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="flex-1 p-4">
+        <SidebarTrigger />
         <Outlet />
       </main>
-    </>
+    </SidebarProvider>
   );
 }
