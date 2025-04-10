@@ -1,9 +1,10 @@
+'use client';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
+// Enums and interfaces per your definitions
 export enum TestRequestStatus {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',
@@ -20,98 +21,214 @@ export interface Reward extends Record<string, unknown> {
   readonly time?: Date;
 }
 export interface TestRequest extends Record<string, unknown> {
-  readonly requestId: string; // Corresponds to Firestore Document ID
-  readonly projectId: string; // Foreign key to Project
-  readonly developerId: string; // Foreign key to User
+  readonly requestId: string; // Test Request ID
+  readonly projectId: string;
+  readonly developerId: string;
   readonly title: string;
   readonly description: string;
   readonly demoUrl: string;
   readonly reward: Reward | Array<Reward>;
-  readonly status: TestRequestStatus;
+}
+export enum BugReportSeverity {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+}
+export enum BugReportStatus {
+  SUBMITTED = 'SUBMITTED',
+  VALIDATED = 'VALIDATED',
+  REJECTED = 'REJECTED',
+  REWARDED = 'REWARDED',
+}
+export interface BugReport extends Record<string, unknown> {
+  readonly reportId: string; // Corresponds to Firestore Document ID
+  readonly requestId: string; // Foreign key to TestRequest
+  readonly testerId: string; // Foreign key to User
+  readonly title: string;
+  readonly description: string;
+  readonly severity: BugReportSeverity;
+  readonly proposedReward: Reward;
+  readonly video?: string; // File name or URL of the video
+  readonly attachments?: string[]; // List of IDs or file names in Storage
+}
+export interface Project extends Record<string, unknown> {
+  readonly projectId: string; // Corresponds to Firestore Document ID
+  readonly developerId: string; // Foreign key to User
+  readonly campusId: string; // Foreign key to Campus
+  readonly name: string;
+  readonly description: string;
+  readonly platform?: string;
   readonly createdAt: Date;
 }
 
 function FoundBugs() {
-  const [requests, setRequests] = useState<TestRequest[]>([]);
+  // State for projects
+  const [projects, setProjects] = useState<Project[]>([]);
+  // State for all test requests across projects
+  const [testRequests, setTestRequests] = useState<TestRequest[]>([]);
+  // State for all bug reports across test requests
+  const [bugReports, setBugReports] = useState<BugReport[]>([]);
 
+  // Fetch projects for a given campus
   useEffect(() => {
-    console.log('useEffect hook is called');
-    const getData = async () => {
+    const fetchProjects = async () => {
       try {
         const response = await fetch(
-          'https://main-rccov53xma-uc.a.run.app/api/projects/XeuiBb2Tn97KXgw76gzh/requests',
+          'https://bugsnacks2.web.app/api/projects/campus/northwestern1',
         );
-        const body = await response.json();
-        setRequests(body);
+        const data: Project[] = await response.json();
+        console.log('Fetched Projects:', data);
+        setProjects(data);
       } catch (error) {
-        console.log(error);
+        console.error('Error fetching projects:', error);
       }
     };
-    getData();
+    fetchProjects();
   }, []);
 
-  return (
-    <div>
-      {/* Header Section */}
-      <div className="flex items-center">
-        <div className="w-1/3" />
-        <div className="flex justify-center text-5xl p-5 font-semibold font-sans text-[color:var(--type-green)] w-1/3 text-center">
-          Found Bugs
-        </div>
-        <div className="w-1/3 flex-1 flex justify-end mr-4"></div>
-      </div>
+  // Once projects are loaded, fetch test requests for each project
+  useEffect(() => {
+    const fetchTestRequestsForProjects = async () => {
+      let allTestRequests: TestRequest[] = [];
+      await Promise.all(
+        projects.map(async (project) => {
+          try {
+            const response = await fetch(
+              `https://bugsnacks2.web.app/api/projects/${project.projectId}/requests`,
+            );
+            const data: TestRequest[] = await response.json();
+            allTestRequests = allTestRequests.concat(data);
+          } catch (error) {
+            console.error(
+              `Error fetching test requests for project ${project.projectId}:`,
+              error,
+            );
+          }
+        }),
+      );
+      console.log('Fetched Test Requests:', allTestRequests);
+      setTestRequests(allTestRequests);
+    };
 
-      {requests.length > 0 ? (
-        requests.map((request, index) => (
-          <div key={index} className="mb-8">
-            <h2 className="text-3xl font-semibold mb-4 text-center">
-              Test Request: {request.title}
-            </h2>
-            {/* Report Bug Button for this test request */}
-            <div className="flex justify-end mb-4 mr-4">
-              <Link to={`/addBug/${request.requestId}`}>
-                <Button className="rounded-3xl text-2xl bg-blue-400 p-3 text-white font-semibold">
-                  Report Bug for this Request
-                </Button>
-              </Link>
-            </div>
-            <div className="flex justify-center">
-              <Card className="w-[90%] md:w-1/2 bg-[color:var(--little-gray)] rounded-3xl">
-                <CardHeader className="flex md:flex-row justify-between flex-col">
-                  <div className="bg-[color:var(--gray)] p-3 px-12 rounded-3xl text-4xl font-semibold">
-                    Login 404s
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="bg-[color:var(--little-gray)] text-2xl italic">
-                      Proposed reward time
+    if (projects.length > 0) {
+      fetchTestRequestsForProjects();
+    }
+  }, [projects]);
+
+  // Once test requests are loaded, fetch bug reports for each test request
+  useEffect(() => {
+    const fetchBugReportsForTestRequests = async () => {
+      let allBugReports: BugReport[] = [];
+      await Promise.all(
+        testRequests.map(async (req) => {
+          try {
+            const response = await fetch(
+              `https://bugsnacks2.web.app/api/test-requests/${req.requestId}/bugs`,
+            );
+            const data: BugReport[] = await response.json();
+            allBugReports = allBugReports.concat(data);
+          } catch (error) {
+            console.error(
+              `Error fetching bug reports for test request ${req.requestId}:`,
+              error,
+            );
+          }
+        }),
+      );
+      console.log('Fetched Bug Reports:', allBugReports);
+      setBugReports(allBugReports);
+    };
+
+    if (testRequests.length > 0) {
+      fetchBugReportsForTestRequests();
+    }
+  }, [testRequests]);
+
+  return (
+    <div className="p-6">
+      <h1 className="text-5xl font-bold text-center mb-8">Found Bugs</h1>
+      {projects.length > 0 ? (
+        projects.map((project) => {
+          // Filter test requests for the current project
+          const projectTestRequests = testRequests.filter(
+            (req) => req.projectId === project.projectId,
+          );
+          return (
+            <div key={project.projectId} className="mb-12">
+              <h2 className="text-4xl font-semibold mb-4">Project: {project.name}</h2>
+              {projectTestRequests.length > 0 ? (
+                projectTestRequests.map((testReq) => {
+                  // Filter bug reports for this test request
+                  const bugsForThisRequest = bugReports.filter(
+                    (bug) => bug.requestId === testReq.requestId,
+                  );
+                  return (
+                    <div key={testReq.requestId} className="mb-8 border p-4 rounded-lg">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-3xl font-semibold">
+                          Test Request: {testReq.title}
+                        </h3>
+                      </div>
+                      {bugsForThisRequest.length > 0 ? (
+                        bugsForThisRequest.map((bug) => (
+                          <Card
+                            key={bug.reportId}
+                            className="w-[90%] md:w-3/4 bg-[color:var(--little-gray)] rounded-3xl mx-auto mb-4"
+                          >
+                            <CardHeader className="flex md:flex-row justify-between flex-col">
+                              <div className="bg-[color:var(--gray)] p-3 px-12 rounded-3xl text-4xl font-semibold">
+                                {bug.title}
+                              </div>
+                              <div className="flex flex-col">
+                                <div className="bg-[color:var(--little-gray)] text-2xl italic">
+                                  Proposed reward time
+                                </div>
+                                <div className="bg-[color:var(--little-gray)] text-2xl font-semibold text-right">
+                                  Tomorrow @ 4
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <video
+                                width="480"
+                                height="360"
+                                className="rounded-lg mx-auto"
+                                controls
+                              >
+                                <source src={bug.video || 'movie.mp4'} type="video/mp4" />
+                                <track
+                                  src="fgsubtitles_en.vtt"
+                                  kind="captions"
+                                  srcLang="en"
+                                  label="English"
+                                />
+                              </video>
+                            </CardContent>
+                            <CardFooter className="flex justify-end">
+                              <Button className="rounded-3xl text-2xl bg-green-600 p-6 text-black font-semibold">
+                                View Details
+                              </Button>
+                            </CardFooter>
+                          </Card>
+                        ))
+                      ) : (
+                        <p className="text-center text-xl">
+                          No bugs found for this test request.
+                        </p>
+                      )}
                     </div>
-                    <div className="bg-[color:var(--little-gray)] text-2xl font-semibold text-right">
-                      Tomorrow @ 4
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <video width="480" height="360" className="rounded-lg mx-auto" controls>
-                    <source src="movie.mp4" type="video/mp4" />
-                    <track
-                      src="fgsubtitles_en.vtt"
-                      kind="captions"
-                      srcLang="en"
-                      label="English"
-                    />
-                  </video>
-                </CardContent>
-                <CardFooter className="flex justify-end">
-                  <Button className="rounded-3xl text-2xl bg-green-600 p-6 text-black font-semibold">
-                    View Details
-                  </Button>
-                </CardFooter>
-              </Card>
+                  );
+                })
+              ) : (
+                <p className="text-center text-xl">
+                  No test requests found for this project.
+                </p>
+              )}
             </div>
-          </div>
-        ))
+          );
+        })
       ) : (
-        <p className="text-center text-xl">No test requests found.</p>
+        <p className="text-center text-xl">No projects found.</p>
       )}
     </div>
   );
