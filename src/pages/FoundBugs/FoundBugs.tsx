@@ -69,7 +69,7 @@ function FoundBugs() {
         requests.map((request, index) => (
           <div key={index} className="mb-8">
             <h2 className="text-3xl font-semibold mb-4 text-center">
-              Test Request {request.title}
+              Test Request: {request.title}
             </h2>
 
             <div className="flex justify-center">

@@ -69,6 +69,31 @@ projectRouter.get(
   },
 );
 
+// GET: Get project by campusId
+
+interface GetProjectRequestCampusParams extends ParamsDictionary {
+  campusId: string;
+}
+
+projectRouter.get(
+  '/campus/:campusId',
+  validateRequest({ params: createAssert<GetProjectRequestCampusParams>() }),
+  async (req: Request<GetProjectRequestParams, any, any, any>, res: Response) => {
+    const { campusId } = req.params;
+    try {
+      const snapshot = await projectCollection.where('campusId', '==', campusId).get();
+      if (!snapshot.empty) {
+        res.status(404).json({ error: 'Projects not found in this campus' });
+      }
+      const projects = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      res.status(200).json(projects);
+    } catch (error) {
+      console.error('Error fetching project:', error);
+      res.status(500).json({ error: 'Error fetching project' });
+    }
+  },
+);
+
 interface UpdateProjectRequestParams extends ParamsDictionary {
   id: string;
 }

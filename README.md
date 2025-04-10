@@ -32,6 +32,12 @@ _todo_
   - Path Parameter: `id` (string) - The ID of the project.
   - Response: `200 OK` - Project data object or `404 Not Found` / `500 Error`
 
+- `GET /api/projects/campus/{campusId}`
+
+  - Description: Retrieves projects by its campus.
+  - Path Parameter: `campusId` (string) - The ID of the campus.
+  - Response: `200 OK` - array of Project data object or `404 Not Found` / `500 Error`
+
 - `PATCH /api/projects/{id}`
 
   - Description: Updates fields of a specific project.
