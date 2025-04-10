@@ -1,8 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+
+import FirebaseVideoPlayer from './FirebaseMedia';
 
 // Enums and interfaces per your definitions
 export enum TestRequestStatus {
@@ -61,7 +64,7 @@ export interface Project extends Record<string, unknown> {
   readonly createdAt: Date;
 }
 
-function FoundBugs() {
+function Bugs() {
   // State for projects
   const [projects, setProjects] = useState<Project[]>([]);
   // State for all test requests across projects
@@ -73,9 +76,7 @@ function FoundBugs() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch(
-          'https://bugsnacks2.web.app/api/projects/campus/northwestern1',
-        );
+        const response = await fetch('/api/projects/campus/northwestern1');
         const data: Project[] = await response.json();
         console.log('Fetched Projects:', data);
         setProjects(data);
@@ -93,9 +94,7 @@ function FoundBugs() {
       await Promise.all(
         projects.map(async (project) => {
           try {
-            const response = await fetch(
-              `https://bugsnacks2.web.app/api/projects/${project.projectId}/requests`,
-            );
+            const response = await fetch(`/api/projects/${project.projectId}/requests`);
             const data: TestRequest[] = await response.json();
             allTestRequests = allTestRequests.concat(data);
           } catch (error) {
@@ -122,10 +121,9 @@ function FoundBugs() {
       await Promise.all(
         testRequests.map(async (req) => {
           try {
-            const response = await fetch(
-              `https://bugsnacks2.web.app/api/test-requests/${req.requestId}/bugs`,
-            );
+            const response = await fetch(`/api/test-requests/${req.requestId}/bugs`);
             const data: BugReport[] = await response.json();
+            console.log(data, '!');
             allBugReports = allBugReports.concat(data);
           } catch (error) {
             console.error(
@@ -189,20 +187,20 @@ function FoundBugs() {
                               </div>
                             </CardHeader>
                             <CardContent>
-                              <video
-                                width="480"
-                                height="360"
-                                className="rounded-lg mx-auto"
-                                controls
-                              >
-                                <source src={bug.video || 'movie.mp4'} type="video/mp4" />
-                                <track
-                                  src="fgsubtitles_en.vtt"
-                                  kind="captions"
-                                  srcLang="en"
-                                  label="English"
-                                />
-                              </video>
+                              <>
+                                {bug.video ? (
+                                  <FirebaseVideoPlayer
+                                    filename={bug.video}
+                                    pathPrefix="BugVideos/"
+                                  />
+                                ) : (
+                                  <></>
+                                )}
+                                <p className="text-center text-xl mt-4">
+                                  {bug.description}
+                                </p>
+                                <Badge>{bug.severity}</Badge>
+                              </>
                             </CardContent>
                             <CardFooter className="flex justify-end">
                               <Button className="rounded-3xl text-2xl bg-green-600 p-6 text-black font-semibold">
@@ -234,4 +232,4 @@ function FoundBugs() {
   );
 }
 
-export default FoundBugs;
+export default Bugs;

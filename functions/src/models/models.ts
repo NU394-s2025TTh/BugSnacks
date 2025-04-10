@@ -1,6 +1,7 @@
 import {
   BugReportSeverity,
   BugReportStatus,
+  Platform,
   RewardType,
   TestRequestStatus,
 } from './enums';
@@ -15,7 +16,7 @@ export interface User extends Record<string, unknown> {
 }
 
 export interface Reward extends Record<string, unknown> {
-  readonly name: string;
+  readonly name?: string;
   readonly description?: string;
   readonly location: string;
   readonly type: RewardType;
@@ -36,7 +37,7 @@ export interface Project extends Record<string, unknown> {
   readonly campusId: string; // Foreign key to Campus
   readonly name: string;
   readonly description: string;
-  readonly platform?: string;
+  readonly platform?: Platform;
   readonly createdAt: Date;
 }
 

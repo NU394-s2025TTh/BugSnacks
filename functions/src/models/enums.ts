@@ -20,3 +20,9 @@ export enum RewardType {
   GUEST_SWIPE = 'GUEST_SWIPE',
   MEAL_EXCHANGE = 'MEAL_EXCHANGE',
 }
+
+export enum Platform {
+  IOS = 'IOS',
+  ANDROID = 'ANDROID',
+  WEB = 'WEB',
+}

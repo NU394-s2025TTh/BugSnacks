@@ -24,11 +24,11 @@ const data = {
       items: [
         {
           title: 'Bug Hunt',
-          url: `${window.origin}`,
+          url: `${window.origin}/requests`,
           isActive: true,
         },
         {
-          title: 'Add a Bug!',
+          title: 'View Pending Bugs',
           url: `${window.origin}/addbug`, // add /projects to this url once page (and route) are created
         },
       ],
@@ -38,11 +38,11 @@ const data = {
       url: '#',
       items: [
         {
-          title: 'Add a Project',
-          url: `${window.origin}/addProject`,
+          title: 'Projects',
+          url: `${window.origin}/projects`,
         },
         {
-          title: 'Manage Bugs',
+          title: 'View Bugs',
           url: `${window.origin}/bugs`, // modify this page to fit the sidebar structure
         },
       ],

@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import * as admin from 'firebase-admin';
 import { assert, createAssert } from 'typia';
 
+import { Platform } from '../models/enums';
 import { Project } from '../models/models';
 import { ParamsDictionary, validateRequest } from '../utils/typedreq';
 
@@ -12,22 +13,19 @@ const projectCollection = db.collection('projects');
 
 // POST: Create project
 
-import { Reward } from '../models/models';
-
 interface CreateProjectRequestBody {
   name: string;
   userId: string;
   description: string;
   campusId: string;
-  reward?: Reward | Array<Reward>;
-  link: string;
+  platform?: Platform;
 }
 
 projectRouter.post(
   '/',
   validateRequest({ body: createAssert<CreateProjectRequestBody>() }),
   async (req: Request<any, any, CreateProjectRequestBody, any>, res: Response) => {
-    const { name, userId, description, campusId, reward, link } = req.body;
+    const { name, userId, description, campusId, platform } = req.body;
     const developerId = userId; // Assuming userId is set in the request
     const createdAt = new Date();
     const projectId = projectCollection.doc().id; // Generate a new document ID
@@ -38,8 +36,7 @@ projectRouter.post(
       name,
       description,
       createdAt,
-      reward,
-      link,
+      platform,
     };
     try {
       await projectCollection.doc(projectId).set(projectData);
