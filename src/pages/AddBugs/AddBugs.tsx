@@ -2,7 +2,6 @@
 import './AddBugs.css';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addDoc, collection } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -18,7 +17,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { db } from '@/firebaseConfig';
 
 export enum BugReportSeverity {
   LOW = 'Low',
@@ -54,33 +52,16 @@ function AddBugs() {
 
   const onSubmit = async (data: AddBugsForm) => {
     try {
-      // Reference to the Firestore collection
-      const bugsCollection = collection(db, 'bugReports');
-
-      // Generate backend data
-      const reportId = crypto.randomUUID(); // Generate a unique ID for the report
-      const requestId = 'testRequest123'; // Replace with the actual TestRequest ID when we get to that step
-      const testerId = 'user123'; // Replace with the actual User ID when we get to that step
-      const proposedReward = 'Burger at Sarge'; // Example reward, modify when we get their
-      const status = 'open'; // Default status for a new bug report
-      const attachments = {}; // Handle file uploads separately if needed
-      const test = 'Ultimate Frisbee QA'; // Example test, modify when we get their
-
-      // Add the form data to the Firestore collection
-      await addDoc(bugsCollection, {
-        reportId,
-        requestId,
-        testerId,
-        test,
-        description: data.description,
-        severity: data.severity,
-        proposedReward,
-        status,
-        attachments,
-        video: data.video ? data.video.name : null, // Store the file name or handle file upload separately
-        createdAt: new Date(), // Add a timestamp
-        VerifiedBug: false, // Default value for isVerified
-      });
+      // interface CreateBugReportRequestBody {
+      //   requestId: string;
+      //   testerId: string;
+      //   title: string;
+      //   description: string;
+      //   severity: BugReportSeverity;
+      //   proposedReward: Reward;
+      //   video?: string;
+      //   attachments?: string[];
+      // } post this to /api/bug-reports/
 
       console.log('Bug report successfully submitted:', data);
       alert('Bug report submitted successfully!');

@@ -2,7 +2,8 @@ import { Request, Response, Router } from 'express';
 import * as admin from 'firebase-admin';
 import { createAssert } from 'typia';
 
-import { BugReport } from '../models/models';
+import { BugReportSeverity, BugReportStatus } from '../models/enums';
+import { BugReport, Reward } from '../models/models';
 import { ParamsDictionary, validateRequest } from '../utils/typedreq';
 
 const db = admin.firestore();
@@ -13,6 +14,58 @@ const bugReportRouter = Router();
 bugReportRouter.get('/', (req, res) => {
   res.send('Hello BugReporter!');
 });
+
+// POST: Create bug report
+
+interface CreateBugReportRequestBody {
+  requestId: string;
+  testerId: string;
+  title: string;
+  description: string;
+  severity: BugReportSeverity;
+  proposedReward: Reward;
+  video?: string;
+  attachments?: string[];
+}
+
+bugReportRouter.post(
+  '/',
+  validateRequest({ body: createAssert<CreateBugReportRequestBody>() }),
+  async (req: Request<any, any, CreateBugReportRequestBody, any>, res: Response) => {
+    const {
+      requestId,
+      testerId,
+      title,
+      description,
+      severity,
+      proposedReward,
+      video,
+      attachments,
+    } = req.body;
+    const createdAt = new Date();
+    const reportId = bugsCollection.doc().id; // Generate a new document ID
+    const bugReportData: Partial<BugReport> = {
+      reportId,
+      requestId,
+      testerId,
+      title,
+      description,
+      severity,
+      proposedReward,
+      status: BugReportStatus.SUBMITTED,
+      createdAt,
+      video,
+      attachments,
+    };
+    try {
+      await bugsCollection.doc(reportId).set(bugReportData);
+      res.status(201).json({ message: 'Bug report created successfully', reportId });
+    } catch (error) {
+      console.error('Error creating bug report:', error);
+      res.status(500).json({ error: 'Error creating bug report' });
+    }
+  },
+);
 
 interface GetBugReportParams extends ParamsDictionary {
   id: string;
