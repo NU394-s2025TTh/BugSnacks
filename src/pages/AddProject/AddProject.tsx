@@ -2,9 +2,7 @@
 import './AddProject.css';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -26,24 +24,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { storage } from '@/firebaseConfig';
 
 // Update the schema to include a new "title" field.
 const formSchema = z.object({
-  title: z.string().min(1, { message: 'Title is required' }),
+  name: z.string().min(1, { message: 'Title is required' }),
   description: z
     .string()
     .min(10, { message: 'Description must be at least 10 characters.' }),
-  attachment: z
-    .custom<FileList | null | undefined>()
-    .optional()
-    .refine((files) => !files || files.length > 0, {
-      message: 'Attachment must include at least one file',
-    }),
   rewardName: z.string().min(1, { message: 'Reward name is required' }),
   rewardDescription: z.string().min(1, { message: 'Reward description is required' }),
   rewardLocation: z.string().min(1, { message: 'Reward location is required' }),
-  rewardType: z.string().min(1, { message: 'Reward time is required' }),
+  rewardType: z.string().min(1, { message: 'Reward type is required' }),
   rewardTime: z.string().min(1, { message: 'Reward time is required' }),
   link: z.string().url({ message: 'Invalid URL' }),
   campusId: z.string().min(1, { message: 'Campus ID is required' }),
@@ -51,15 +42,11 @@ const formSchema = z.object({
 type AddProjectForm = z.infer<typeof formSchema>;
 
 function AddProject() {
-  const { requestId } = useParams();
-
-  console.log('Received requestId:', requestId);
   const form = useForm<AddProjectForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: '',
+      name: '',
       description: '',
-      attachment: '',
       rewardName: '',
       rewardDescription: '',
       rewardLocation: '',
@@ -72,38 +59,21 @@ function AddProject() {
 
   const onSubmit = async (data: AddProjectForm) => {
     try {
-      const uploadedFiles: string[] = [];
-
-      // Upload attachment files
-      if (data.attachment && data.attachment.length > 0) {
-        for (const file of data.attachment) {
-          const fileRef = ref(storage, `ProjectAttachments/${file.name}`);
-          await uploadBytes(fileRef, file);
-          const fileURL = await getDownloadURL(fileRef);
-          uploadedFiles.push(fileURL);
-        }
-      }
-
       // Log or send the uploaded file URLs to your backend
-      console.log('Uploaded files:', uploadedFiles);
-
-      const attachmentFileName =
-        data.attachment && data.attachment.length > 0 ? data.attachment[0].name : null;
+      console.log('on submit');
 
       const payload = {
-        requestId: requestId,
-        developerId: 'developerId', // Replace with actual developer ID
+        userId: 'developerId', // Replace with actual developer ID
         campusId: data.campusId,
-        title: data.title,
-        proposedReward: {
+        name: data.name,
+        reward: {
           name: data.rewardName,
           description: data.rewardDescription,
           location: data.rewardLocation,
           type: data.rewardType,
-          time: data.rewardTime,
+          time: new Date(data.rewardTime).toISOString(),
         },
         description: data.description,
-        attachments: attachmentFileName ? [attachmentFileName] : [],
       };
 
       const response = await fetch('https://bugsnacks2.web.app/api/projects/', {
@@ -128,6 +98,8 @@ function AddProject() {
     }
   };
 
+  console.log('Form errors', form.formState.errors);
+
   return (
     <div className="border p-6 rounded-lg mx-auto bugform">
       <h1 className="text-2xl font-semibold mb-4 text-center">New Project Form</h1>
@@ -136,7 +108,7 @@ function AddProject() {
           {/* Title Field */}
           <FormField
             control={form.control}
-            name="title"
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title</FormLabel>
@@ -161,7 +133,7 @@ function AddProject() {
                   <Textarea placeholder="Enter project description..." {...field} />
                 </FormControl>
                 <FormDescription>
-                  Please provide a detailed descriptio of the project.
+                  Please provide a detailed description of the project.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -251,7 +223,42 @@ function AddProject() {
               <FormItem>
                 <FormLabel>Reward Time</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Enter your reward time..." {...field} />
+                  <Input
+                    type="datetime-local"
+                    {...field}
+                    // Ensure consistent format for the datetime-local input
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Please provide a time for delivery of your reward.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Reward Type Field */}
+          <FormField
+            control={form.control}
+            name="rewardType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Reward Type</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a type of reward" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GUEST_SWIPE">Guest Swipe</SelectItem>
+                      <SelectItem value="MEAL_EXCHANGE">Meal Exchange</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormDescription>
                   Please provide a time for delivery of your reward.
@@ -285,27 +292,6 @@ function AddProject() {
                 </FormControl>
                 <FormDescription>
                   Please choose where the reward can be claimed.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Attachment Field */}
-          <FormField
-            control={form.control}
-            name="attachment"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Attachment</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    multiple
-                    onChange={(e) => field.onChange(e.target.files)}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Upload other relevant files explaining the project.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
