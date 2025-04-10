@@ -133,7 +133,7 @@ function AddBugs() {
 
           <FormField
             control={form.control}
-            name="BugVideos"
+            name="video"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Video Attachment</FormLabel>
@@ -155,7 +155,7 @@ function AddBugs() {
 
           <FormField
             control={form.control}
-            name="BugAttachments"
+            name="attachment"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Attachment</FormLabel>
