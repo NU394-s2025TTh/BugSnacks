@@ -7,6 +7,8 @@ import { BugReport, Reward } from '../models/models';
 import { ParamsDictionary, validateRequest } from '../utils/typedreq';
 
 const db = admin.firestore();
+db.settings({ ignoreUndefinedProperties: true });
+
 const bugsCollection = db.collection('bugs');
 
 const bugReportRouter = Router();
@@ -23,7 +25,7 @@ interface CreateBugReportRequestBody {
   title: string;
   description: string;
   severity: BugReportSeverity;
-  proposedReward: Reward;
+  proposedReward?: Reward;
   video?: string;
   attachments?: string[];
 }

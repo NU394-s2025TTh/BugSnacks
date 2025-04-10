@@ -225,7 +225,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
     console.log('Submitting Payload:', payload);
 
     try {
-      const response = await fetch('/api/test-request/', {
+      const response = await fetch('/api/test-requests/', {
         // Use your POST endpoint
         method: 'POST',
         headers: {

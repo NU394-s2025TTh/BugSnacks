@@ -62,7 +62,7 @@ export interface BugReport extends Record<string, unknown> {
   readonly title: string;
   readonly description: string; // Includes steps to reproduce
   readonly severity: BugReportSeverity;
-  readonly proposedReward: Reward;
+  readonly proposedReward?: Reward;
   readonly status: BugReportStatus;
   readonly video?: string; // File name or URL of the video
   readonly attachments?: string[]; // List of IDs in Storage

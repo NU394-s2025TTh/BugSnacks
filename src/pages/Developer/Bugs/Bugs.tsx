@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
-import FirebaseVideoPlayer from './FirebaseMedia';
+import { FirebaseImageViewer, FirebaseVideoPlayer } from './FirebaseMedia';
 
 // Enums and interfaces per your definitions
 export enum TestRequestStatus {
@@ -192,6 +192,12 @@ function Bugs() {
                                   <FirebaseVideoPlayer
                                     filename={bug.video}
                                     pathPrefix="BugVideos/"
+                                  />
+                                ) : bug.attachments?.length ? (
+                                  <FirebaseImageViewer
+                                    filename={bug.attachments?.[0]}
+                                    pathPrefix="BugAttachments/"
+                                    style={{ maxWidth: '200px', maxHeight: '200px' }}
                                   />
                                 ) : (
                                   <></>

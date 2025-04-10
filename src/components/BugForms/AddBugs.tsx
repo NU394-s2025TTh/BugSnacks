@@ -95,18 +95,15 @@ export interface TestRequest {
 
 // Interface for BugReport to be saved (ensure fields match schema/requirements)
 export interface BugReportPayload {
-  reportId: string; // Will be generated
+  // reportId: string; // Will be generated
   requestId: string; // From form
   testerId: string; // Placeholder for now
   title: string; // From form
   description: string; // From form
   severity: BugReportSeverity; // From form
-  proposedReward: Reward; // The actual Reward object chosen by the user
+  proposedReward?: Reward; // The actual Reward object chosen by the user
   video?: string; // UUID Filename/Path of the uploaded video
   attachments?: string[]; // Array of UUID Filenames/Paths for attachments
-  status: BugReportStatus; // Initial status
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createdAt: any; // Use serverTimestamp
 }
 
 // --- Constants ---
@@ -130,9 +127,7 @@ const formSchema = z.object({
     errorMap: () => ({ message: 'Please select a severity level.' }),
   }),
   // Store the selected reward as a stringified JSON
-  proposedRewardString: z
-    .string()
-    .min(1, { message: 'Please select your preferred reward.' }),
+  proposedRewardString: z.string().optional(),
   video: z
     .instanceof(FileList)
     .optional()
@@ -349,15 +344,17 @@ function AddBugs({
       }
 
       // 3. Parse selected reward
-      let proposedRewardObject: Reward | null = null;
+      let proposedRewardObject: Reward | undefined = undefined;
       try {
-        proposedRewardObject = JSON.parse(data.proposedRewardString) as Reward;
+        if (data.proposedRewardString) {
+          proposedRewardObject = JSON.parse(data.proposedRewardString) as Reward;
+        }
       } catch (e) {
         throw new Error('Invalid reward data selected.'); // Should not happen with proper dropdown values
       }
-      if (!proposedRewardObject) {
-        throw new Error('Reward selection is corrupted.');
-      }
+      // if (!proposedRewardObject) {
+      //   throw new Error('Reward selection is corrupted.');
+      // }
 
       // 4. Prepare Firestore document
       const bugsCollection = collection(db, 'bugs');
@@ -365,7 +362,7 @@ function AddBugs({
       const testerIdPlaceholder = 'user123'; // Replace with actual user ID when available
 
       const bugReportData: BugReportPayload = {
-        reportId: reportId,
+        // reportId: reportId,
         requestId: testRequestId,
         testerId: testerIdPlaceholder,
         title: data.title,
@@ -374,14 +371,24 @@ function AddBugs({
         proposedReward: proposedRewardObject, // The parsed Reward object
         video: uploadedVideoFilename, // Store the UUID filename/path
         attachments: uploadedAttachmentFilenames, // Store array of UUID filenames/paths
-        status: BugReportStatus.SUBMITTED, // Initial status
-        createdAt: serverTimestamp(), // Use Firestore server timestamp
       };
 
-      console.log('Saving to Firestore:', bugReportData);
+      const response = await fetch('/api/bug-reports/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bugReportData),
+      });
 
-      // 5. Save to Firestore
-      await addDoc(bugsCollection, bugReportData);
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('API Error Response:', errorData);
+        throw new Error(`API error! status: ${response.status}. ${errorData || ''}`);
+      }
+
+      // Handle success
+      const newReport = await response.json(); // Assuming backend returns the created project
 
       // toast({ title: "Success", description: "Bug report submitted successfully!" });
       alert('Bug report submitted successfully!');
