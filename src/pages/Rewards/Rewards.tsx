@@ -51,7 +51,7 @@ function Rewards() {
   return (
     <div>
       <h1 className="flex justify-center text-5xl p-5 font-semibold font-sans text-[color:var(--type-green)]">
-        Rewards
+        Bug Hunt
       </h1>
 
       {projects.length > 0 ? (
