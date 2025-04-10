@@ -82,7 +82,7 @@ projectRouter.get(
     const { campusId } = req.params;
     try {
       const snapshot = await projectCollection.where('campusId', '==', campusId).get();
-      if (!snapshot.empty) {
+      if (snapshot.empty) {
         res.status(404).json({ error: 'Projects not found in this campus' });
       }
       const projects = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
