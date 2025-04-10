@@ -71,9 +71,10 @@ function AddProject() {
           description: data.rewardDescription,
           location: data.rewardLocation,
           type: data.rewardType,
-          time: new Date(data.rewardTime).toISOString(),
+          time: data.rewardTime,
         },
         description: data.description,
+        link: data.link,
       };
 
       const response = await fetch('https://bugsnacks2.web.app/api/projects/', {

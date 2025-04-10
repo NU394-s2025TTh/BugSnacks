@@ -19,7 +19,7 @@ export interface Reward extends Record<string, unknown> {
   readonly description?: string;
   readonly location: string;
   readonly type: RewardType;
-  readonly time?: Date;
+  readonly time?: string;
 }
 
 // --- Campus Interface ---
