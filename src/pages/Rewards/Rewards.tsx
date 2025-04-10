@@ -16,7 +16,7 @@ export interface Reward extends Record<string, unknown> {
   readonly description?: string;
   readonly location: string;
   readonly type: RewardType;
-  readonly time?: Date;
+  readonly time?: string;
 }
 export interface TestRequest extends Record<string, unknown> {
   readonly campusID: string;
@@ -64,7 +64,9 @@ function Rewards() {
                     {project.name}
                   </div>
                   <div className="flex flex-col text-3xl p-3 px-5 rounded-3xl font-semibold bg-[color:var(--pastel-green)]">
-                    Sarge 🍔
+                    {Array.isArray(project.reward)
+                      ? project.reward[0]?.name
+                      : project.reward?.name}
                   </div>
                 </CardHeader>
                 <CardContent>

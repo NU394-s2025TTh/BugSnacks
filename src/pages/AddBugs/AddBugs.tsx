@@ -98,7 +98,7 @@ function AddBugs() {
           description: 'string',
           location: 'string',
           type: 'GUEST_SWIPE',
-          time: new Date(),
+          time: 'string',
         },
         description: data.description,
         severity: data.severity,
