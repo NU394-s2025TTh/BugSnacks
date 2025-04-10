@@ -23,7 +23,7 @@ const data = {
       url: `${window.origin}`, // modify this url once page (and route) are created
       items: [
         {
-          title: 'Rewards',
+          title: 'Bug Hunt',
           url: `${window.origin}`,
           isActive: true,
         },
