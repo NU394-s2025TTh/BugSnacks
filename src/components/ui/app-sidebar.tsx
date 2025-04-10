@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import bugsnacks from '@/assets/bugsnacks.svg';
 import caterpillar from '@/assets/caterpillar.svg';
 import {
   Sidebar,
@@ -65,8 +66,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <img src={caterpillar} alt="caterpillar" className="size-12" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">Documentation</span>
-                  <span className="">v1.0.0</span>
+                  <img
+                    src={bugsnacks}
+                    alt="bugsnacks"
+                    className="w-full max-w-[150px] h-auto"
+                  />
                 </div>
               </a>
             </SidebarMenuButton>
