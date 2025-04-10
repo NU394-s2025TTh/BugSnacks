@@ -76,12 +76,12 @@ campusRouter.get(
     const rewardsArray: Reward[] = [];
     diningOptions.forEach((diningOption) => {
       rewardsArray.push({
-        name: diningOption + 'at ' + campusId,
+        name: diningOption + ' at ' + campusId,
         location: diningOption,
         type: RewardType.GUEST_SWIPE,
       } as Reward);
       rewardsArray.push({
-        name: diningOption + 'at ' + campusId,
+        name: diningOption + ' at ' + campusId,
         location: diningOption,
         type: RewardType.MEAL_EXCHANGE,
       } as Reward);
