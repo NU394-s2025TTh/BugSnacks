@@ -61,7 +61,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href={`${window}`}>
+              <a href={window.location.origin}>
                 <div className="text-sidebar-primary-foreground flex aspect-square size-12 items-center justify-center rounded-lg">
                   <img src={caterpillar} alt="caterpillar" className="size-12" />
                 </div>
