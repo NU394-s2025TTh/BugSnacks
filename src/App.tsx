@@ -18,7 +18,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Rewards />} />
             <Route path="bugs" element={<FoundBugs />} />
-            <Route path="addbug" element={<AddBugs />} />
+            <Route path="addbug/:requestId" element={<AddBugs />} />
           </Route>
         </Routes>
       </Router>

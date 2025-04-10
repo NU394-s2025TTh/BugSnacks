@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+
 export enum TestRequestStatus {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',
@@ -29,6 +30,7 @@ export interface TestRequest extends Record<string, unknown> {
   readonly status: TestRequestStatus;
   readonly createdAt: Date;
 }
+
 function FoundBugs() {
   const [requests, setRequests] = useState<TestRequest[]>([]);
 
@@ -56,13 +58,7 @@ function FoundBugs() {
         <div className="flex justify-center text-5xl p-5 font-semibold font-sans text-[color:var(--type-green)] w-1/3 text-center">
           Found Bugs
         </div>
-        <div className="w-1/3 flex-1 flex justify-end mr-4">
-          <Link to="/addbug">
-            <Button className="rounded-3xl text-2xl bg-green-300 p-6 text-black font-semibold">
-              Report a Bug!
-            </Button>
-          </Link>
-        </div>
+        <div className="w-1/3 flex-1 flex justify-end mr-4"></div>
       </div>
 
       {requests.length > 0 ? (
@@ -71,7 +67,14 @@ function FoundBugs() {
             <h2 className="text-3xl font-semibold mb-4 text-center">
               Test Request: {request.title}
             </h2>
-
+            {/* Report Bug Button for this test request */}
+            <div className="flex justify-end mb-4 mr-4">
+              <Link to={`/addbug/${request.requestId}`}>
+                <Button className="rounded-3xl text-2xl bg-blue-400 p-3 text-white font-semibold">
+                  Report Bug for this Request
+                </Button>
+              </Link>
+            </div>
             <div className="flex justify-center">
               <Card className="w-[90%] md:w-1/2 bg-[color:var(--little-gray)] rounded-3xl">
                 <CardHeader className="flex md:flex-row justify-between flex-col">

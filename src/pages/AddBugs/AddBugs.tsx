@@ -4,6 +4,7 @@ import './AddBugs.css';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useForm } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,9 @@ export enum BugReportSeverity {
   HIGH = 'High',
 }
 
+// Update the schema to include a new "title" field.
 const formSchema = z.object({
+  title: z.string().min(1, { message: 'Title is required' }),
   description: z
     .string()
     .min(10, { message: 'Description must be at least 10 characters.' }),
@@ -35,16 +38,19 @@ const formSchema = z.object({
     BugReportSeverity.MEDIUM,
     BugReportSeverity.HIGH,
   ]),
-
   video: z.any(),
   attachment: z.any(),
 });
 type AddBugsForm = z.infer<typeof formSchema>;
 
 function AddBugs() {
-  const form = useForm({
+  const { requestId } = useParams();
+
+  console.log('Received requestId:', requestId);
+  const form = useForm<AddBugsForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      title: '',
       description: '',
       severity: BugReportSeverity.LOW,
       video: '',
@@ -78,6 +84,43 @@ function AddBugs() {
       // Log or send the uploaded file URLs to your backend
       console.log('Uploaded files:', uploadedFiles);
 
+      const videoFileName =
+        data.video && data.video.length > 0 ? data.video[0].name : null;
+      const attachmentFileName =
+        data.attachment && data.attachment.length > 0 ? data.attachment[0].name : null;
+
+      const payload = {
+        requestId: requestId,
+        testerId: 'random_tester', // Replace with the actual tester id.
+        title: data.title,
+        proposedReward: {
+          name: 'string',
+          description: 'string',
+          location: 'string',
+          type: 'GUEST_SWIPE',
+          time: new Date(),
+        },
+        description: data.description,
+        severity: data.severity,
+        video: videoFileName,
+        attachments: attachmentFileName ? [attachmentFileName] : [],
+      };
+
+      const response = await fetch('https://bugsnacks2.web.app/api/bug-reports/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+        console.log(response.body);
+      }
+
+      const responseData = await response.json();
+      console.log('Bug report successfully submitted:', responseData);
       alert('Bug report submitted successfully!');
     } catch (error) {
       console.error('Error submitting bug report:', error);
@@ -86,10 +129,28 @@ function AddBugs() {
   };
 
   return (
-    <div className="border p-6 rounded-lg  mx-auto bugform">
+    <div className="border p-6 rounded-lg mx-auto bugform">
       <h1 className="text-2xl font-semibold mb-4 text-center">Bug Report Form</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Title Field */}
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter bug title" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Provide a short, descriptive title for the bug.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Description Field */}
           <FormField
             control={form.control}
             name="description"
@@ -109,7 +170,7 @@ function AddBugs() {
               </FormItem>
             )}
           />
-
+          {/* Severity Field */}
           <FormField
             control={form.control}
             name="severity"
@@ -130,7 +191,7 @@ function AddBugs() {
               </FormItem>
             )}
           />
-
+          {/* Video Attachment Field */}
           <FormField
             control={form.control}
             name="video"
@@ -152,7 +213,7 @@ function AddBugs() {
               </FormItem>
             )}
           />
-
+          {/* Attachment Field */}
           <FormField
             control={form.control}
             name="attachment"
@@ -182,4 +243,5 @@ function AddBugs() {
     </div>
   );
 }
+
 export default AddBugs;
