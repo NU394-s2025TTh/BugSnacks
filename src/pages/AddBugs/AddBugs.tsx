@@ -2,6 +2,7 @@
 import './AddBugs.css';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { storage } from '@/firebaseConfig';
 
 export enum BugReportSeverity {
   LOW = 'Low',
@@ -52,18 +54,30 @@ function AddBugs() {
 
   const onSubmit = async (data: AddBugsForm) => {
     try {
-      // interface CreateBugReportRequestBody {
-      //   requestId: string;
-      //   testerId: string;
-      //   title: string;
-      //   description: string;
-      //   severity: BugReportSeverity;
-      //   proposedReward: Reward;
-      //   video?: string;
-      //   attachments?: string[];
-      // } post this to /api/bug-reports/
+      const uploadedFiles: string[] = [];
 
-      console.log('Bug report successfully submitted:', data);
+      // Upload video file
+      if (data.video && data.video[0]) {
+        const videoFile = data.video[0];
+        const videoRef = ref(storage, `BugVideos/${videoFile.name}`);
+        await uploadBytes(videoRef, videoFile);
+        const videoURL = await getDownloadURL(videoRef);
+        uploadedFiles.push(videoURL);
+      }
+
+      // Upload attachment files
+      if (data.attachment && data.attachment.length > 0) {
+        for (const file of data.attachment) {
+          const fileRef = ref(storage, `BugAttachments/${file.name}`);
+          await uploadBytes(fileRef, file);
+          const fileURL = await getDownloadURL(fileRef);
+          uploadedFiles.push(fileURL);
+        }
+      }
+
+      // Log or send the uploaded file URLs to your backend
+      console.log('Uploaded files:', uploadedFiles);
+
       alert('Bug report submitted successfully!');
     } catch (error) {
       console.error('Error submitting bug report:', error);
@@ -119,15 +133,20 @@ function AddBugs() {
 
           <FormField
             control={form.control}
-            name="video"
+            name="BugVideos"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Video Attachment</FormLabel>
                 <FormControl>
-                  <Input type="file" multiple {...field} accept="video/*" />
+                  <Input
+                    type="file"
+                    accept="BugVideos/mp4,BugVideos/quicktime"
+                    onChange={(e) => field.onChange(e.target.files)}
+                  />
                 </FormControl>
                 <FormDescription>
-                  Upload relevant video explaining the bug.
+                  Upload relevant video explaining the bug. Supported formats include MP4
+                  and MOV.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -136,15 +155,19 @@ function AddBugs() {
 
           <FormField
             control={form.control}
-            name="attachment"
+            name="BugAttachments"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Attachment</FormLabel>
                 <FormControl>
-                  <Input type="file" multiple {...field} />
+                  <Input
+                    type="file"
+                    multiple
+                    onChange={(e) => field.onChange(e.target.files)}
+                  />
                 </FormControl>
                 <FormDescription>
-                  Upload relevant other relevant files explaining the bug.
+                  Upload other relevant files explaining the bug.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
