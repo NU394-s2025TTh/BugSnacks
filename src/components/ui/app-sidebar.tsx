@@ -28,10 +28,6 @@ const data = {
           isActive: true,
         },
         {
-          title: 'Projects',
-          url: `${window.origin}`, // add /projects to this url once page (and route) are created
-        },
-        {
           title: 'Add a Bug!',
           url: `${window.origin}/addBug`, // add /projects to this url once page (and route) are created
         },
