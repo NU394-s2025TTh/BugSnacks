@@ -25,11 +25,7 @@ const data = {
         {
           title: 'Bug Hunt',
           url: `${window.origin}/requests`,
-          isActive: true,
-        },
-        {
-          title: 'View Pending Bugs',
-          url: `${window.origin}/addbug`, // add /projects to this url once page (and route) are created
+          isActive: false,
         },
       ],
     },
@@ -40,10 +36,12 @@ const data = {
         {
           title: 'Projects',
           url: `${window.origin}/projects`,
+          isActive: false,
         },
         {
           title: 'View Bugs',
           url: `${window.origin}/bugs`, // modify this page to fit the sidebar structure
+          isActive: false,
         },
       ],
     },
