@@ -11,13 +11,15 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
 
 const steps: TourStep[] = [
   {
-    content: <div>Looking to claim some rewards? Here is the place for you.</div>,
+    content: (
+      <div>Looking to find some bugs and claim rewards? Here is the place for you.</div>
+    ),
     selectorId: 'forDebugger',
     position: 'right',
     onClickWithinArea: () => {},
   },
   {
-    content: <div>Need testing on your project? This section is your spot.</div>,
+    content: <div>Does your project need testing? This section is the spot.</div>,
     selectorId: 'forDeveloper',
     position: 'right',
     onClickWithinArea: () => {},

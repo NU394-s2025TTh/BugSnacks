@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 
 // Assuming AddBugs might be used for creating projects too, or a specific component exists
-import AddProject from '@/components/ProjectForms/AddProject';
-import AddTestRequest from '@/components/TestRequestForms/AddTestRequest';
-import { Accordion } from '@/components/ui/accordion';
+import AddProject from '@/components/Forms/ProjectForms/AddProject';
+import AddTestRequest from '@/components/Forms/TestRequestForms/AddTestRequest';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -119,7 +118,7 @@ function Projects() {
   return (
     <div>
       {/* Header Section */}
-      <div className="w-[95%] md:w-1/2 mx-auto">
+      <div className="w-[90%] mx-auto">
         <div className="flex items-center justify-between mb-4">
           <h1 className="flex justify-left text-5xl font-semibold font-sans text-[color:var(--type-green)]">
             Projects
@@ -127,7 +126,7 @@ function Projects() {
           {/* Create Project Dialog Trigger */}
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">Create new project</Button>
+              <Button variant="default">Create new project</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -151,12 +150,13 @@ function Projects() {
               {' '}
               {/* Use projectId for key */}
               <div className="flex justify-center">
-                <Card className="w-[90%] md:w-1/2 rounded-3xl">
-                  <CardHeader className="flex md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0">
+                <Card className="w-[90%] rounded-3xl">
+                  <CardHeader
+                    className="flex flex-wrap md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0"
+                    style={{ rowGap: '0.5rem' }}
+                  >
                     {/* Project Name Badge (Assuming name is always present) */}
-                    <Badge variant="outline" style={{ fontSize: 32 }}>
-                      {project.name}
-                    </Badge>
+                    <h2 style={{ fontSize: 32 }}>{project.name}</h2>
                     {/* Platform Badge (Conditional Rendering) */}
                     {project.platform && ( // Only render if platform exists
                       <Badge
@@ -176,10 +176,10 @@ function Projects() {
                         <h3 className="text-lg font-semibold mb-2">
                           Calls for Testing ({testRequests.length}):
                         </h3>
-                        <Accordion type="single" collapsible className="w-full">
+                        <ul className="w-full">
                           {testRequests.map((testRequest) => (
                             <>
-                              <p>{testRequest.title || 'Unnamed Test Request'}</p>
+                              <li>{testRequest.title || 'Unnamed Test Request'}</li>
                             </>
                             // <AccordionItem
                             //   key={testRequest.id}
@@ -202,13 +202,14 @@ function Projects() {
                             //   </AccordionContent>
                             // </AccordionItem>)
                           ))}
-                        </Accordion>
+                        </ul>
                       </>
                     ) : (
                       <p className="text-muted-foreground">
                         No active test requests for this project.
                       </p>
                     )}
+                    <br />
                     <AddTestRequestButton projectId={project.projectId} />
                   </CardContent>
                   <CardFooter className="flex justify-end"></CardFooter>
@@ -305,17 +306,16 @@ function Projects() {
 //   );
 // }
 
-// --- SubmitBugDialog (Modified to accept correct props) ---
 function AddTestRequestButton({ projectId }: { projectId: string }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Create a new Test Request</Button>
+        <Button variant="outline">Create a new test request</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           {/* Optionally make title more specific */}
-          <DialogTitle>Submit Bug Report</DialogTitle>
+          <DialogTitle>Create a new test request</DialogTitle>
         </DialogHeader>
         {/* Pass the actual IDs to the AddBugs component */}
         {/* <AddBugs projectId={projectId} testRequestId={testRequestId} /> */}

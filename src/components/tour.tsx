@@ -353,9 +353,9 @@ export function TourProvider({
                 }}
                 className="bg-background relative z-[100] rounded-lg border p-4 shadow-lg" // Original classes
               >
-                <div className="text-muted-foreground absolute right-4 top-4 text-xs">
+                {/* <div className="text-muted-foreground absolute right-4 top-4 text-xs">
                   {currentStep + 1} / {steps.length}
-                </div>
+                </div> */}
                 {/* Original Inner Content Animation */}
                 <AnimatePresence mode="wait">
                   {/* Removed outer div wrapper */}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import AddBugs from '@/components/BugForms/AddBugs';
+import AddBugs from '@/components/Forms/BugForms/AddBugs';
 // Import Accordion components and remove Collapsible imports
 import {
   Accordion,
@@ -119,7 +119,7 @@ function Requests() {
 
   return (
     <div>
-      <div className="w-[95%] md:w-1/2 mx-auto">
+      <div className="w-[90%] mx-auto">
         <div className="flex items-center justify-between mb-4">
           <h1 className="flex justify-left text-5xl font-semibold font-sans text-[color:var(--type-green)]">
             Hunt for bugs!
@@ -138,12 +138,13 @@ function Requests() {
               {' '}
               {/* Use projectId for key */}
               <div className="flex justify-center">
-                <Card className="w-[90%] md:w-1/2 rounded-3xl">
-                  <CardHeader className="flex md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0">
+                <Card className="w-[90%] rounded-3xl">
+                  <CardHeader
+                    className="flex flex-wrap md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0"
+                    style={{ rowGap: '0.5rem' }}
+                  >
                     {/* Project Name Badge (Assuming name is always present) */}
-                    <Badge variant="outline" style={{ fontSize: 32 }}>
-                      {project.name}
-                    </Badge>
+                    <h2 style={{ fontSize: 32 }}>{project.name}</h2>
                     {/* Platform Badge (Conditional Rendering) */}
                     {project.platform && ( // Only render if platform exists
                       <Badge
@@ -170,12 +171,10 @@ function Requests() {
                               value={testRequest.id} // Use unique ID for value
                             >
                               <AccordionTrigger>
-                                {testRequest.title || 'Unnamed Test Request'}{' '}
-                                {/* Fallback text */}
-                                <div className="flex md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0 mb-2">
-                                  {/* Test Request Name moved to AccordionTrigger, keep description/URL here */}
-                                  {/* <h2 className="text-xl font-semibold">{testRequest.name}</h2> */}
-                                  {/* Reward Badge (Conditional Rendering) */}
+                                <div className="flex md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0 mb-2 flex-1">
+                                  {/* Fallback text */}
+                                  {/* <div className="flex flex-row flex-wrap justify-between align-middle flex-1"> */}
+                                  {testRequest.title || 'Unnamed Test Request'}
                                   {(Array.isArray(testRequest.reward)
                                     ? testRequest.reward[0]?.name // Get name from first reward if array
                                     : testRequest.reward?.name) && ( // Only render badge if rewardName is truthy
@@ -192,6 +191,7 @@ function Requests() {
                                         : testRequest.reward?.name}
                                     </Badge>
                                   )}
+                                  {/* </div> */}
                                 </div>
                               </AccordionTrigger>
                               <AccordionContent>
