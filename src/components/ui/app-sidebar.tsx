@@ -21,6 +21,7 @@ const data = {
     {
       title: 'For Debuggers',
       url: `${window.origin}`, // modify this url once page (and route) are created
+      id: 'forDebugger',
       items: [
         {
           title: 'Bug Hunt',
@@ -32,6 +33,7 @@ const data = {
     {
       title: 'For Developers',
       url: '#',
+      id: 'forDeveloper',
       items: [
         {
           title: 'Projects',
@@ -75,7 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarMenu>
             {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
+              <SidebarMenuItem id={item.id} key={item.title}>
                 <SidebarMenuButton asChild>
                   <a href={item.url} className="font-medium">
                     {item.title}

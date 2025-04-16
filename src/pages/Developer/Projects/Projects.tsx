@@ -10,7 +10,6 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -136,10 +135,6 @@ function Projects() {
               </DialogHeader>
               {/* Replace AddBugs with a form specific to creating Projects if available */}
               <AddProject />
-              <DialogFooter>
-                {/* This button likely needs an onClick handler or form association */}
-                <Button type="submit">Create Project</Button>
-              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>

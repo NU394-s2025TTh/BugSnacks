@@ -131,12 +131,11 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
       setIsLoadingCampuses(true);
       setErrorCampuses(null);
       try {
-        const response = await fetch('/api/campuses/'); // Use your actual API endpoint
+        const response = await fetch('/api/campuses/');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data: [] = await response.json();
-        // Assuming the API returns an array like [{ id: 'northwestern1', name: 'Northwestern' }, ...]
         setCampuses(data);
       } catch (error) {
         console.error('Failed to fetch campuses:', error);
@@ -165,7 +164,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
             // Handle cases like 404 Not Found if a campus has no rewards endpoint
             if (response.status === 404) {
               console.warn(`No rewards endpoint found for campus ${selectedCampusId}`);
-              return; // Exit gracefully, leaving rewards empty
+              return;
             }
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -209,8 +208,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
       developerId: developerIdPlaceholder,
       title: values.title,
       description: values.description,
-      demoUrl: values.demoUrl || undefined, // Send undefined if empty string
-      // Map the selected reward (if any) to the structure expected by the backend/TestRequest interface
+      demoUrl: values.demoUrl || undefined,
       reward: selectedRewardObject
         ? {
             name: selectedRewardObject.name, // The full name from API reward
@@ -360,7 +358,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
           name="demoUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Demo URL (Optional)</FormLabel>
+              <FormLabel>Demo URL</FormLabel>
               <FormControl>
                 <Input type="url" placeholder="https://your-demo-link.com" {...field} />
               </FormControl>

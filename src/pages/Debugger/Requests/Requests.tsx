@@ -69,7 +69,6 @@ export enum Platform {
 
 function Requests() {
   const [projects, setProjects] = useState<[Project, TestRequest[]][]>([]);
-
   useEffect(() => {
     const getData = async () => {
       try {
