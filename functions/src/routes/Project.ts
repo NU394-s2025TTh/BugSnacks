@@ -84,7 +84,10 @@ projectRouter.get(
   async (req: Request<GetProjectRequestParams, any, any, any>, res: Response) => {
     const { campusId } = req.params;
     try {
-      const snapshot = await projectCollection.where('campusId', '==', campusId).get();
+      const snapshot = await projectCollection
+        .where('campusId', '==', campusId)
+        .orderBy('createdAt', 'desc')
+        .get();
       if (snapshot.empty) {
         res.status(404).json({ error: 'Projects not found in this campus' });
       }

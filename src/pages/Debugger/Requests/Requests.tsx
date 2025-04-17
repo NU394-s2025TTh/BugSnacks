@@ -69,51 +69,51 @@ export enum Platform {
 
 function Requests() {
   const [projects, setProjects] = useState<[Project, TestRequest[]][]>([]);
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        // Fetch projects
-        const response = await fetch(
-          '/api/projects/campus/northwestern1', // Using provided example URL
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const projectsData: Project[] = await response.json();
-
-        // Fetch test requests for each project
-        const testRequestPromises = projectsData.map((project) =>
-          fetch(`/api/projects/${project.projectId}/requests`) // Assuming this API endpoint exists relative to your app
-            .then((res) => {
-              if (!res.ok) {
-                console.error(
-                  `Failed to fetch requests for project ${project.projectId}: ${res.status}`,
-                );
-                return []; // Return empty array on error for this project
-              }
-              return res.json();
-            })
-            .catch((err) => {
-              console.error(
-                `Error fetching requests for project ${project.projectId}:`,
-                err,
-              );
-              return []; // Return empty array on network error etc.
-            }),
-        );
-
-        const testRequestResults: TestRequest[][] =
-          await Promise.all(testRequestPromises);
-
-        // Combine projects with their respective test requests
-        setProjects(
-          projectsData.map((project, index) => [project, testRequestResults[index]]),
-        );
-      } catch (error) {
-        console.error('Failed to fetch projects or test requests:', error);
-        // Optionally set an error state here to show in the UI
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const getData = async () => {
+    try {
+      // Fetch projects
+      const response = await fetch(
+        '/api/projects/campus/northwestern1', // Using provided example URL
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
+      const projectsData: Project[] = await response.json();
+
+      // Fetch test requests for each project
+      const testRequestPromises = projectsData.map((project) =>
+        fetch(`/api/projects/${project.projectId}/requests`) // Assuming this API endpoint exists relative to your app
+          .then((res) => {
+            if (!res.ok) {
+              console.error(
+                `Failed to fetch requests for project ${project.projectId}: ${res.status}`,
+              );
+              return []; // Return empty array on error for this project
+            }
+            return res.json();
+          })
+          .catch((err) => {
+            console.error(
+              `Error fetching requests for project ${project.projectId}:`,
+              err,
+            );
+            return []; // Return empty array on network error etc.
+          }),
+      );
+
+      const testRequestResults: TestRequest[][] = await Promise.all(testRequestPromises);
+
+      // Combine projects with their respective test requests
+      setProjects(
+        projectsData.map((project, index) => [project, testRequestResults[index]]),
+      );
+    } catch (error) {
+      console.error('Failed to fetch projects or test requests:', error);
+      // Optionally set an error state here to show in the UI
+    }
+  };
+  useEffect(() => {
     getData();
   }, []);
 
@@ -202,6 +202,8 @@ function Requests() {
                                   <SubmitBugDialog
                                     projectId={project.projectId}
                                     testRequestId={testRequest.id}
+                                    dialogOpen={dialogOpen}
+                                    setDialogOpen={setDialogOpen} // Pass the state setter
                                   />
                                 </div>
                               </AccordionContent>
@@ -313,12 +315,16 @@ function TestRequestSection({ testRequest }: { testRequest: TestRequest }) {
 function SubmitBugDialog({
   projectId,
   testRequestId, // Changed prop name for clarity
+  dialogOpen,
+  setDialogOpen,
 }: {
   projectId: string;
   testRequestId: string; // Use the ID
+  dialogOpen: boolean; // prop to control dialog state
+  setDialogOpen: (open: boolean) => void; // function to set dialog state
 }) {
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Report a bug for this request</Button>
       </DialogTrigger>
@@ -329,7 +335,11 @@ function SubmitBugDialog({
         </DialogHeader>
         {/* Pass the actual IDs to the AddBugs component */}
         {/* <AddBugs projectId={projectId} testRequestId={testRequestId} /> */}
-        <AddBugs projectId={projectId} testRequestId={testRequestId} />
+        <AddBugs
+          projectId={projectId}
+          testRequestId={testRequestId}
+          onSuccess={() => setDialogOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );
