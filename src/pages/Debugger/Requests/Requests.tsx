@@ -109,7 +109,6 @@ function Requests() {
         await Promise.allSettled(testRequestPromises)
       ).map((result) => (result.status === 'fulfilled' ? result.value : []));
 
-      setLoading(false);
       // Combine projects with their respective test requests
       setProjects(
         projectsData.map((project, index) => [project, testRequestResults[index]]),
@@ -118,6 +117,7 @@ function Requests() {
       console.error('Failed to fetch projects or test requests:', error);
       // Optionally set an error state here to show in the UI
     }
+    setLoading(false);
   };
   useEffect(() => {
     getData();

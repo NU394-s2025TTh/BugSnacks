@@ -107,8 +107,6 @@ function Projects() {
         )
         .map((result) => result.value);
 
-      setLoading(false);
-
       setProjects(
         body.map((project, i) => {
           const requests = Array.isArray(testRequestBodies[i])
@@ -120,6 +118,7 @@ function Projects() {
     } catch (error) {
       console.error('Error fetching projects:', error); // Log the error
     }
+    setLoading(false);
   };
   useEffect(() => {
     getData();
