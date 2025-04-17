@@ -5,6 +5,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-// import { useToast } from "@/components/ui/use-toast"; // Optional
 
 // --- Enums and Interfaces ---
 
@@ -113,7 +113,7 @@ function AddProject({ onSuccess, onCancel }: CreateProjectFormProps) {
         );
         setCampuses([]);
         // toast({ variant: "destructive", title: "Error", description: "Could not load campuses." });
-        alert('Error: Could not load campuses.');
+        toast.error('Could not load campuses.');
       } finally {
         setIsLoadingCampuses(false);
       }
@@ -156,17 +156,13 @@ function AddProject({ onSuccess, onCancel }: CreateProjectFormProps) {
         throw new Error(`API error! status: ${response.status}. ${errorData || ''}`);
       }
 
-      // Handle success
       const newProject = await response.json(); // Assuming backend returns the created project
       console.log('Project creation successful:', newProject);
-      // toast({ title: "Success", description: "Project created successfully." });
-      alert('Project created successfully!');
+      toast.success('Project created successfully!');
       form.reset(); // Reset form fields
       if (onSuccess) onSuccess(newProject); // Pass created project data back
     } catch (error) {
-      console.error('Failed to submit project:', error);
-      // toast({ variant: "destructive", title: "Error", description: error instanceof Error ? error.message : "Failed to create project." });
-      alert(
+      toast.error(
         `Failed to create project: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     } finally {

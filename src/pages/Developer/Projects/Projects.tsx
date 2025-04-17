@@ -331,8 +331,7 @@ function AddTestRequestButton({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          {/* Optionally make title more specific */}
-          <DialogTitle>Create a new test request</DialogTitle>
+          <DialogTitle>Create New Test Request</DialogTitle>
         </DialogHeader>
         {/* Pass the actual IDs to the AddBugs component */}
         {/* <AddBugs projectId={projectId} testRequestId={testRequestId} /> */}

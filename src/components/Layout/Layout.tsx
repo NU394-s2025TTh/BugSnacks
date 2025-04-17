@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import { TourAlertDialog, TourProvider, TourStep, useTour } from '@/components/tour';
 import { AppSidebar } from '@/components/ui/app-sidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { Toaster } from '@/components/ui/toaster';
 
 export function RootLayout({ children }: { children: React.ReactNode }) {
   return <TourProvider>{children}</TourProvider>;
@@ -57,6 +58,7 @@ export default function Layout() {
           <Outlet />
         </main>
       </SidebarProvider>
+      <Toaster />
     </RootLayout>
   );
 }

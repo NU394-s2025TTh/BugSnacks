@@ -1,9 +1,7 @@
-// src/components/TestRequestForms/CreateTestRequestForm.tsx
-'use client';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -25,10 +23,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-// Assuming you might want a toast notification on success/error
-// import { useToast } from "@/components/ui/use-toast";
-
-// --- Enums and Interfaces based on your requirements ---
 
 export enum TestRequestStatus {
   OPEN = 'OPEN',
@@ -40,30 +34,25 @@ export enum RewardType {
   MEAL_EXCHANGE = 'MEAL_EXCHANGE',
 }
 
-// Interface for the reward structure returned by the API
 export interface ApiReward {
-  readonly name: string; // e.g., "Café Bergson at northwestern1"
-  readonly location: string; // e.g., "Café Bergson"
+  readonly name: string;
+  readonly location: string;
   readonly type: RewardType;
 }
 
-// Interface for the TestRequest payload to be sent
-// Note: requestId and createdAt are usually handled by the backend or generated just before sending
 export interface TestRequestPayload {
   projectId: string;
   developerId: string;
   title: string;
   description: string;
-  demoUrl?: string; // Optional based on schema
+  demoUrl?: string;
   reward?: {
-    // Structure expected by TestRequest interface (simplified for one reward)
+    // expand for multiple rewards if needed
     name: string;
     location: string;
     type: RewardType;
-    // description and time are not in ApiReward, add if needed
   };
   status: TestRequestStatus;
-  // createdAt will be added during submission
 }
 
 // Interface for Campus data from API
@@ -76,13 +65,7 @@ const formSchema = z.object({
   description: z
     .string()
     .min(10, { message: 'Description must be at least 10 characters.' }),
-  demoUrl: z
-    .string()
-    .url({ message: 'Please enter a valid URL.' })
-    .optional()
-    .or(z.literal('')), // Optional but must be valid URL if provided
-  // Store the selected reward as a stringified JSON object or a unique identifier
-  // Using stringified JSON here for simplicity in reconstructing the object
+  demoUrl: z.string().url({ message: 'Please enter a valid URL.' }),
   reward: z.string().optional(),
   status: z.nativeEnum(TestRequestStatus, {
     errorMap: () => ({ message: 'Please select a status.' }),
@@ -94,7 +77,6 @@ type CreateTestRequestFormValues = z.infer<typeof formSchema>;
 // --- Component Props ---
 interface CreateTestRequestFormProps {
   projectId: string; // Passed in, as a test request belongs to a project
-  // developerId?: string; // Optional: pass if available, otherwise use placeholder
   onSuccess?: () => void; // Optional callback on successful submission
   onCancel?: () => void; // Optional callback for a cancel action
 }
@@ -102,7 +84,6 @@ interface CreateTestRequestFormProps {
 // --- The Form Component ---
 
 function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFormProps) {
-  // const { toast } = useToast(); // Initialize toast
   const [campuses, setCampuses] = useState<string[]>([]);
   const [rewards, setRewards] = useState<ApiReward[]>([]);
   const [isLoadingCampuses, setIsLoadingCampuses] = useState(false);
@@ -142,7 +123,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
         setErrorCampuses(
           error instanceof Error ? error.message : 'Failed to load campuses.',
         );
-        setCampuses([]); // Clear campuses on error
+        setCampuses([]);
       } finally {
         setIsLoadingCampuses(false);
       }
@@ -150,7 +131,6 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
     fetchCampuses();
   }, []);
 
-  // Effect to fetch rewards when campus changes
   useEffect(() => {
     if (selectedCampusId) {
       const fetchRewards = async () => {
@@ -240,19 +220,17 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
       }
 
       // Handle success
-      const result = await response.json(); // Assuming backend returns the created object or success message
+      const result = await response.json();
       console.log('Submission successful:', result);
-      // toast({ title: "Success", description: "Test Request created successfully." });
-      alert('Test Request created successfully!'); // Simple alert fallback
+      toast.success('Test Request created successfully!');
       form.reset(); // Reset form after successful submission
-      setRewards([]); // Clear rewards list as campus might be reset
-      if (onSuccess) onSuccess(); // Call onSuccess callback
+      setRewards([]);
+      if (onSuccess) onSuccess();
     } catch (error) {
       console.error('Failed to submit test request:', error);
-      // toast({ variant: "destructive", title: "Error", description: error instanceof Error ? error.message : "Failed to create Test Request." });
-      alert(
+      toast.error(
         `Failed to create Test Request: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      ); // Simple alert fallback
+      );
     } finally {
       setIsSubmitting(false);
     }

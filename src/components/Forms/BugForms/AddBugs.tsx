@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // src/components/BugForms/AddBugs.tsx
 'use client';
-// Removed './AddBugs.css' import unless you have specific styles there
 
 import { zodResolver } from '@hookform/resolvers/zod';
-// Import necessary Firebase functions
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes } from 'firebase/storage';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid'; // Import uuid library
 import { z } from 'zod';
 
@@ -29,15 +27,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'; // Use shadcn Select
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-// Assuming db and storage are correctly configured and exported from firebaseConfig
 import { db, storage } from '@/firebaseConfig';
-// import { useToast } from "@/components/ui/use-toast"; // Optional: for better feedback
 
-// --- Enums and Interfaces (Ensure these match your project's definitions) ---
+// --- Enums and Interfaces
 export enum BugReportSeverity {
-  LOW = 'LOW', // Changed to match casing in original code usage
+  LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
 }
@@ -65,10 +61,8 @@ export interface Reward {
   readonly description?: string;
   readonly location: string;
   readonly type: RewardType;
-  // Note: Time is NOT part of the reward definition here based on user feedback
 }
 
-// Interface for Project (from previous context)
 export interface Project {
   readonly projectId: string;
   readonly developerId: string;
@@ -79,8 +73,6 @@ export interface Project {
   readonly createdAt: Date;
 }
 
-// Interface for TestRequest (ensure rewards match the Reward interface above)
-// Added status based on previous component
 export interface TestRequest {
   readonly id: string; // Use 'id' consistently if it's the doc ID
   readonly projectId: string;
@@ -93,9 +85,7 @@ export interface TestRequest {
   readonly createdAt: Date;
 }
 
-// Interface for BugReport to be saved (ensure fields match schema/requirements)
 export interface BugReportPayload {
-  // reportId: string; // Will be generated
   requestId: string; // From form
   testerId: string; // Placeholder for now
   title: string; // From form
@@ -115,7 +105,7 @@ const ALLOWED_ATTACHMENT_TYPES = [
   'image/png',
   'image/gif',
   'application/pdf',
-]; // Example types
+];
 
 // --- Zod Schema Definition ---
 const formSchema = z.object({
@@ -166,8 +156,6 @@ const formSchema = z.object({
 
 type AddBugsFormValues = z.infer<typeof formSchema>;
 
-// --- AddBugs Component ---
-// Removed props projectId and testRequestId as they are now selected within the form
 function AddBugs({
   projectId,
   testRequestId,
@@ -175,17 +163,12 @@ function AddBugs({
 }: {
   projectId: string;
   testRequestId: string;
-  onSuccess?: () => void; // Optional callback for success
+  onSuccess?: () => void;
 }) {
-  // const { toast } = useToast(); // Optional
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [testRequestsForProject, setTestRequestsForProject] = useState<TestRequest[]>([]);
   const [selectedTestRequestDetails, setSelectedTestRequestDetails] =
     useState<TestRequest | null>(null);
   const [availableRewards, setAvailableRewards] = useState<Reward[]>([]);
 
-  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
-  const [isLoadingTestRequests, setIsLoadingTestRequests] = useState(false);
   const [isLoadingTestRequestDetails, setIsLoadingTestRequestDetails] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -194,68 +177,14 @@ function AddBugs({
     defaultValues: {
       title: '',
       description: '',
-      severity: BugReportSeverity.LOW, // Default severity
+      severity: BugReportSeverity.LOW,
       proposedRewardString: '',
-      // video and attachments default to undefined/null via optional()
     },
   });
 
   const selectedProjectId = projectId;
   const selectedTestRequestId = testRequestId;
 
-  // 1. Fetch projects on mount
-  useEffect(() => {
-    const fetchProjects = async () => {
-      setIsLoadingProjects(true);
-      try {
-        // Make sure this URL is correct for your setup
-        const response = await fetch('/api/projects/campus/northwestern1');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data: Project[] = await response.json();
-        setProjects(data);
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-        // toast({ variant: "destructive", title: "Error", description: "Could not load projects." });
-        alert('Error: Could not load projects.');
-      } finally {
-        setIsLoadingProjects(false);
-      }
-    };
-    fetchProjects();
-  }, []); // Runs only once
-
-  // 2. Fetch test requests when a project is selected
-  useEffect(() => {
-    // Reset downstream state when project changes
-    setTestRequestsForProject([]);
-    setSelectedTestRequestDetails(null);
-    setAvailableRewards([]);
-    form.resetField('proposedRewardString');
-
-    if (selectedProjectId) {
-      const fetchTestRequests = async () => {
-        setIsLoadingTestRequests(true);
-        try {
-          const response = await fetch(`/api/projects/${selectedProjectId}/requests`);
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          const data: TestRequest[] = await response.json();
-          setTestRequestsForProject(data);
-        } catch (error) {
-          console.error(
-            `Error fetching test requests for project ${selectedProjectId}:`,
-            error,
-          );
-          // toast({ variant: "destructive", title: "Error", description: "Could not load test requests for this project." });
-          alert('Error: Could not load test requests for this project.');
-        } finally {
-          setIsLoadingTestRequests(false);
-        }
-      };
-      fetchTestRequests();
-    }
-  }, [selectedProjectId, form]); // Depend on selectedProjectId
-
-  // 3. Fetch details (especially rewards) for the selected test request
   useEffect(() => {
     // Reset reward state when test request changes
     setSelectedTestRequestDetails(null);
@@ -266,9 +195,7 @@ function AddBugs({
       const fetchTestRequestDetails = async () => {
         setIsLoadingTestRequestDetails(true);
         try {
-          // Fetch SINGLE test request details - ensure API endpoint exists
-          // Using the ID from the TestRequest interface ('id')
-          const response = await fetch(`/api/test-requests/${selectedTestRequestId}`); // Adjust API endpoint
+          const response = await fetch(`/api/test-requests/${selectedTestRequestId}`);
           if (!response.ok) {
             if (response.status === 404) {
               throw new Error(`Test request with ID ${selectedTestRequestId} not found.`);
@@ -290,8 +217,7 @@ function AddBugs({
             error,
           );
           setAvailableRewards([]); // Clear rewards on error
-          // toast({ variant: "destructive", title: "Error", description: "Could not load details for this test request." });
-          alert('Error: Could not load details for this test request.');
+          toast.error('Could not load details for this test request.');
         } finally {
           setIsLoadingTestRequestDetails(false);
         }
@@ -303,19 +229,14 @@ function AddBugs({
   // --- File Upload Helper ---
   const uploadFile = async (file: File, pathPrefix: string): Promise<string> => {
     const fileExtension = file.name.split('.').pop();
-    const uniqueFilename = `${uuidv4()}.${fileExtension}`; // Generate UUID filename
+    const uniqueFilename = `${uuidv4()}.${fileExtension}`;
     const storagePath = `${pathPrefix}/${uniqueFilename}`;
     const fileRef = ref(storage, storagePath);
 
     console.log(`Uploading ${file.name} to ${storagePath}...`);
     await uploadBytes(fileRef, file);
     console.log(`Uploaded ${uniqueFilename} successfully.`);
-
-    // Return the filename or the full path based on preference
-    // Returning filename here, assuming path prefix is known
     return uniqueFilename;
-    // return storagePath; // Alternative: return full path
-    // return await getDownloadURL(fileRef); // Alternative: return download URL immediately (less common for backend references)
   };
 
   // --- Form Submission Handler ---
@@ -348,20 +269,17 @@ function AddBugs({
         throw new Error('Invalid reward data selected.');
       }
       // 4. Prepare Firestore document
-      const bugsCollection = collection(db, 'bugs');
-      const reportId = uuidv4(); // Generate unique ID for the bug report itself
       const testerIdPlaceholder = 'user123'; // Replace with actual user ID when available
 
       const bugReportData: BugReportPayload = {
-        // reportId: reportId,
         requestId: testRequestId,
         testerId: testerIdPlaceholder,
         title: data.title,
         description: data.description,
         severity: data.severity,
-        proposedReward: proposedRewardObject, // The parsed Reward object
-        video: uploadedVideoFilename, // Store the UUID filename/path
-        attachments: uploadedAttachmentFilenames, // Store array of UUID filenames/paths
+        proposedReward: proposedRewardObject,
+        video: uploadedVideoFilename,
+        attachments: uploadedAttachmentFilenames,
       };
 
       const response = await fetch('/api/bug-reports/', {
@@ -378,22 +296,26 @@ function AddBugs({
         throw new Error(`API error! status: ${response.status}. ${errorData || ''}`);
       }
 
-      // Handle success
-      const newReport = await response.json(); // Assuming backend returns the created project
+      const res = await response;
 
-      // toast({ title: 'Success', description: 'Bug report submitted successfully!' });
-      alert('Bug report submitted successfully!');
-      form.reset(); // Reset the form fields
+      if (!res.ok) {
+        throw new Error('Failed to submit bug report.');
+      }
+
+      const _ = await response.json();
+
+      toast.success('Bug report submitted successfully!');
+
+      // reset for next time its opened
+      form.reset();
       if (onSuccess) onSuccess();
-      // Also reset dependent state if needed
-      setTestRequestsForProject([]);
       setSelectedTestRequestDetails(null);
       setAvailableRewards([]);
     } catch (error) {
       console.error('Error submitting bug report:', error);
-      // toast({ variant: "destructive", title: "Submission Failed", description: error instanceof Error ? error.message : "An unknown error occurred." });
-      alert(
-        `Failed to submit bug report: ${error instanceof Error ? error.message : 'Please try again.'}`,
+      toast.error(
+        'Submission failed: ' +
+          (error instanceof Error ? error.message : 'Please try again.'),
       );
     } finally {
       setIsSubmitting(false);
@@ -403,8 +325,6 @@ function AddBugs({
   // --- Render Form ---
   return (
     <>
-      {/* Removed H1 assuming this form is embedded */}
-      {/* <h1 className="text-2xl font-semibold mb-4 text-center">Bug Report Form</h1> */}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
