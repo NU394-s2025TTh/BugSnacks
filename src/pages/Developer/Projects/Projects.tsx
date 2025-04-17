@@ -220,7 +220,7 @@ function Projects() {
                     <br />
                     <AddTestRequestButton
                       projectId={project.projectId}
-                      getData={getData}
+                      onSuccess={getData}
                     />
                   </CardContent>
                   <CardFooter className="flex justify-end"></CardFooter>
@@ -319,10 +319,10 @@ function Projects() {
 
 function AddTestRequestButton({
   projectId,
-  getData,
+  onSuccess,
 }: {
   projectId: string;
-  getData: () => void;
+  onSuccess: () => void;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   return (
@@ -341,7 +341,7 @@ function AddTestRequestButton({
           projectId={projectId}
           onSuccess={() => {
             setDialogOpen(false);
-            getData();
+            if (onSuccess) onSuccess();
           }}
           onCancel={() => setDialogOpen(false)}
         ></AddTestRequest>
