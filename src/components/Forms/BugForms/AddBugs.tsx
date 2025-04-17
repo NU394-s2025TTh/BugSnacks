@@ -234,13 +234,9 @@ function AddBugs({
       const fetchTestRequests = async () => {
         setIsLoadingTestRequests(true);
         try {
-          // Adjust URL to your API endpoint
           const response = await fetch(`/api/projects/${selectedProjectId}/requests`);
           if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          // Ensure the fetched data matches the TestRequest interface, especially the 'id' field
           const data: TestRequest[] = await response.json();
-          // Filter for OPEN requests only? Optional, based on requirements.
-          // setTestRequestsForProject(data.filter(req => req.status === TestRequestStatus.OPEN));
           setTestRequestsForProject(data);
         } catch (error) {
           console.error(
@@ -329,12 +325,10 @@ function AddBugs({
     const uploadedAttachmentFilenames: string[] = [];
 
     try {
-      // 1. Upload Video (if provided)
       if (data.video && data.video.length > 0) {
         uploadedVideoFilename = await uploadFile(data.video[0], 'BugVideos');
       }
 
-      // 2. Upload Attachments (if provided) - concurrently
       if (data.attachments && data.attachments.length > 0) {
         const uploadPromises = Array.from(data.attachments).map((file) =>
           uploadFile(file, 'BugAttachments'),
@@ -343,19 +337,14 @@ function AddBugs({
         uploadedAttachmentFilenames.push(...results);
       }
 
-      // 3. Parse selected reward
       let proposedRewardObject: Reward | undefined = undefined;
       try {
         if (data.proposedRewardString) {
           proposedRewardObject = JSON.parse(data.proposedRewardString) as Reward;
         }
       } catch (e) {
-        throw new Error('Invalid reward data selected.'); // Should not happen with proper dropdown values
+        throw new Error('Invalid reward data selected.');
       }
-      // if (!proposedRewardObject) {
-      //   throw new Error('Reward selection is corrupted.');
-      // }
-
       // 4. Prepare Firestore document
       const bugsCollection = collection(db, 'bugs');
       const reportId = uuidv4(); // Generate unique ID for the bug report itself
@@ -390,7 +379,7 @@ function AddBugs({
       // Handle success
       const newReport = await response.json(); // Assuming backend returns the created project
 
-      // toast({ title: "Success", description: "Bug report submitted successfully!" });
+      // toast({ title: 'Success', description: 'Bug report submitted successfully!' });
       alert('Bug report submitted successfully!');
       form.reset(); // Reset the form fields
       // Also reset dependent state if needed

@@ -94,14 +94,13 @@ function Projects() {
             }),
         );
 
-        const testRequestResults = await Promise.all(testRequestPromises);
-        // Filter out potential errors if needed, here we assume successful responses are TestRequest[][]
-        const testRequestBodies: TestRequest[][] = testRequestResults as TestRequest[][];
+        const testRequestResults = await Promise.allSettled(testRequestPromises);
+        const testRequestBodies: TestRequest[][] = testRequestResults.map((result) =>
+          result.status === 'fulfilled' ? result.value : [],
+        );
 
-        // 3. Combine Projects and their Test Requests into state
         setProjects(
           body.map((project, i) => {
-            // Ensure testRequestBodies[i] is an array, default to empty if fetch failed
             const requests = Array.isArray(testRequestBodies[i])
               ? testRequestBodies[i]
               : [];
@@ -109,7 +108,7 @@ function Projects() {
           }),
         );
       } catch (error) {
-        console.error('Error fetching projects:', error); // Log the error
+        console.error('Error fetching projects:', error);
       }
     };
     getData();

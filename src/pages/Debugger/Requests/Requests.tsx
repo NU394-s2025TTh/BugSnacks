@@ -102,10 +102,10 @@ function Requests() {
             }),
         );
 
-        const testRequestResults: TestRequest[][] =
-          await Promise.all(testRequestPromises);
+        const testRequestResults: TestRequest[][] = (
+          await Promise.allSettled(testRequestPromises)
+        ).map((result) => (result.status === 'fulfilled' ? result.value : []));
 
-        // Combine projects with their respective test requests
         setProjects(
           projectsData.map((project, index) => [project, testRequestResults[index]]),
         );

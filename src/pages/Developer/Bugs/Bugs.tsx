@@ -91,7 +91,7 @@ function Bugs() {
   useEffect(() => {
     const fetchTestRequestsForProjects = async () => {
       let allTestRequests: TestRequest[] = [];
-      await Promise.all(
+      await Promise.allSettled(
         projects.map(async (project) => {
           try {
             const response = await fetch(`/api/projects/${project.projectId}/requests`);
@@ -106,7 +106,10 @@ function Bugs() {
         }),
       );
       console.log('Fetched Test Requests:', allTestRequests);
-      setTestRequests(allTestRequests);
+      const settledRequests = allTestRequests.filter((result) =>
+        result.status === 'fulfilled' ? result.value : [],
+      );
+      setTestRequests(settledRequests);
     };
 
     if (projects.length > 0) {
@@ -118,7 +121,7 @@ function Bugs() {
   useEffect(() => {
     const fetchBugReportsForTestRequests = async () => {
       let allBugReports: BugReport[] = [];
-      await Promise.all(
+      await Promise.allSettled(
         testRequests.map(async (req) => {
           try {
             const response = await fetch(`/api/test-requests/${req.requestId}/bugs`);
@@ -134,7 +137,11 @@ function Bugs() {
         }),
       );
       console.log('Fetched Bug Reports:', allBugReports);
-      setBugReports(allBugReports);
+      setBugReports(
+        allBugReports.filter((result) =>
+          result.status === 'fulfilled' ? result.value : [],
+        ),
+      );
     };
 
     if (testRequests.length > 0) {
