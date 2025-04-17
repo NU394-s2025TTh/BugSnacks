@@ -204,6 +204,7 @@ function Requests() {
                                     testRequestId={testRequest.id}
                                     dialogOpen={dialogOpen}
                                     setDialogOpen={setDialogOpen} // Pass the state setter
+                                    getData={getData}
                                   />
                                 </div>
                               </AccordionContent>
@@ -317,11 +318,13 @@ function SubmitBugDialog({
   testRequestId, // Changed prop name for clarity
   dialogOpen,
   setDialogOpen,
+  getData,
 }: {
   projectId: string;
   testRequestId: string; // Use the ID
   dialogOpen: boolean; // prop to control dialog state
   setDialogOpen: (open: boolean) => void; // function to set dialog state
+  getData: () => void; // function to refresh data
 }) {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -338,7 +341,10 @@ function SubmitBugDialog({
         <AddBugs
           projectId={projectId}
           testRequestId={testRequestId}
-          onSuccess={() => setDialogOpen(false)}
+          onSuccess={() => {
+            setDialogOpen(false);
+            getData();
+          }}
         />
       </DialogContent>
     </Dialog>
