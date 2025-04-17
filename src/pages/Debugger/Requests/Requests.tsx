@@ -11,6 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { CardSkeleton } from '@/components/ui/CardSkeleton';
 // Removed Collapsible imports
 import {
   Dialog,
@@ -70,6 +71,8 @@ export enum Platform {
 function Requests() {
   const [projects, setProjects] = useState<[Project, TestRequest[]][]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const getData = async () => {
     try {
       // Fetch projects
@@ -106,6 +109,7 @@ function Requests() {
         await Promise.allSettled(testRequestPromises)
       ).map((result) => (result.status === 'fulfilled' ? result.value : []));
 
+      setLoading(false);
       // Combine projects with their respective test requests
       setProjects(
         projectsData.map((project, index) => [project, testRequestResults[index]]),
@@ -226,6 +230,8 @@ function Requests() {
             </div>
           );
         })
+      ) : loading ? (
+        <CardSkeleton />
       ) : (
         <p className="text-center text-xl">No projects found.</p>
       )}
@@ -236,29 +242,14 @@ function Requests() {
 // --- TestRequestSection (Modified for graceful badge handling) ---
 function TestRequestSection({ testRequest }: { testRequest: TestRequest }) {
   // const [testRequest, setTestRequest] = useState<TestRequest | null>(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null); // Add error state
 
   useEffect(() => {
     const getData = async () => {
       setLoading(true);
       setError(null);
-      // try {
-      //   const response = await fetch(
-      //     `/api/test-requests/${testRequestId}`, // Using provided example URL
-      //   );
-      //   if (!response.ok) {
-      //     throw new Error(`HTTP error! status: ${response.status}`);
-      //   }
-      //   const body: TestRequest = await response.json();
-      //   setTestRequest(body);
-      // } catch (err) {
-      //   console.error(`Failed to fetch test request ${testRequestId}:`, err);
-      //   setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      //   setTestRequest(null); // Clear any previous data
-      // } finally {
       setLoading(false);
-      // }
     };
     getData();
   }, []);
@@ -272,30 +263,12 @@ function TestRequestSection({ testRequest }: { testRequest: TestRequest }) {
   }
 
   if (!testRequest) {
-    return <p>Test request data not available.</p>; // Should ideally not happen if no error and not loading
+    return <p>Test request data not available.</p>;
   }
-
-  // Determine reward name safely
-  // const rewardName = Array.isArray(testRequest.reward)
-  //   ? testRequest.reward[0]?.name // Get name from first reward if array
-  //   : testRequest.reward?.name; // Get name if single reward object
 
   return (
     <div>
-      {/* Details section - keep layout flexible */}
-      <div className="flex md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0 mb-2">
-        {/* Test Request Name moved to AccordionTrigger, keep description/URL here */}
-        {/* <h2 className="text-xl font-semibold">{testRequest.name}</h2> */}
-        {/* Reward Badge (Conditional Rendering) */}
-        {/* {rewardName && ( // Only render badge if rewardName is truthy
-          <Badge
-            variant="secondary" // Use appropriate variant
-            style={{ fontSize: '1rem', backgroundColor: 'var(--pastel-green)' }} // Adjusted size
-          >
-            Reward: {rewardName}
-          </Badge>
-        )} */}
-      </div>
+      <div className="flex md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0 mb-2"></div>
       <p className="mb-1">{testRequest.description || 'No description provided.'}</p>
       {testRequest.demoUrl && ( // Only show URL if it exists
         <p>

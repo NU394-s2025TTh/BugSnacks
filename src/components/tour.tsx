@@ -4,6 +4,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import type React from 'react';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   AlertDialog,
@@ -23,6 +24,7 @@ export interface TourStep {
   height?: number;
   onClickWithinArea?: () => void;
   position?: 'top' | 'bottom' | 'left' | 'right';
+  navigateTo?: string;
 }
 
 interface TourContextType {
@@ -122,6 +124,8 @@ export function TourProvider({
     height: number;
   } | null>(null);
 
+  const navigate = useNavigate();
+
   // --- MODIFIED: State Initialization with localStorage ---
   const [isCompleted, setIsCompletedInternal] = useState(() => {
     // Check localStorage only on the client-side
@@ -148,6 +152,9 @@ export function TourProvider({
       const position = getElementPosition(steps[currentStep]?.selectorId ?? '');
       if (position) {
         setElementPosition(position);
+      }
+      if (steps[currentStep]?.navigateTo) {
+        navigate(steps[currentStep].navigateTo);
       }
       // NOTE: Original didn't explicitly handle element not found or position reset when inactive
     }

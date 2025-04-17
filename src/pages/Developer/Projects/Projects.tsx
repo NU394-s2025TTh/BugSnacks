@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 
+import { CardSkeleton } from '../../../components/ui/CardSkeleton';
+
 // --- Copied Types from Requests.tsx for consistency ---
 export enum TestRequestStatus {
   OPEN = 'OPEN',
@@ -63,6 +65,7 @@ function Projects() {
   // State now holds Project and its associated TestRequests
   const [projects, setProjects] = useState<[Project, TestRequest[]][]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const getData = async () => {
     try {
@@ -94,14 +97,20 @@ function Projects() {
           }),
       );
 
-      const testRequestResults = await Promise.all(testRequestPromises);
-      // Filter out potential errors if needed, here we assume successful responses are TestRequest[][]
-      const testRequestBodies: TestRequest[][] = testRequestResults as TestRequest[][];
+      const testRequestResults: PromiseSettledResult<TestRequest[]>[] =
+        await Promise.allSettled(testRequestPromises);
 
-      // 3. Combine Projects and their Test Requests into state
+      const testRequestBodies: TestRequest[][] = testRequestResults
+        .filter(
+          (result): result is PromiseFulfilledResult<TestRequest[]> =>
+            result.status === 'fulfilled',
+        )
+        .map((result) => result.value);
+
+      setLoading(false);
+
       setProjects(
         body.map((project, i) => {
-          // Ensure testRequestBodies[i] is an array, default to empty if fetch failed
           const requests = Array.isArray(testRequestBodies[i])
             ? testRequestBodies[i]
             : [];
@@ -228,93 +237,14 @@ function Projects() {
             </div>
           );
         })
+      ) : loading ? (
+        <CardSkeleton />
       ) : (
         <p className="text-center text-xl">No projects found.</p>
       )}
     </div>
   );
 }
-
-// --- TestRequestSection (Modified for graceful badge handling) ---
-// function TestRequestSection({ testRequestId }: { testRequestId: string }) {
-//   const [testRequest, setTestRequest] = useState<TestRequest | null>(null);
-//   const [loading, setLoading] = useState(true); // Add loading state
-//   const [error, setError] = useState<string | null>(null); // Add error state
-
-//   useEffect(() => {
-//     const getData = async () => {
-//       setLoading(true);
-//       setError(null);
-//       try {
-//         const response = await fetch(
-//           `/api/test-requests/${testRequestId}`, // Using provided example URL
-//         );
-//         if (!response.ok) {
-//           throw new Error(`HTTP error! status: ${response.status}`);
-//         }
-//         const body: TestRequest = await response.json();
-//         setTestRequest(body);
-//       } catch (err) {
-//         console.error(`Failed to fetch test request ${testRequestId}:`, err);
-//         setError(err instanceof Error ? err.message : 'An unknown error occurred');
-//         setTestRequest(null); // Clear any previous data
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     getData();
-//   }, [testRequestId]);
-
-//   if (loading) {
-//     return <p>Loading test request details...</p>;
-//   }
-
-//   if (error) {
-//     return <p className="text-red-500">Error loading details: {error}</p>;
-//   }
-
-//   if (!testRequest) {
-//     return <p>Test request data not available.</p>; // Should ideally not happen if no error and not loading
-//   }
-
-//   // Determine reward name safely
-//   const rewardName = Array.isArray(testRequest.reward)
-//     ? testRequest.reward[0]?.name // Get name from first reward if array
-//     : testRequest.reward?.name; // Get name if single reward object
-
-//   return (
-//     <div>
-//       {/* Details section - keep layout flexible */}
-//       <div className="flex md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0 mb-2">
-//         {/* Test Request Name moved to AccordionTrigger, keep description/URL here */}
-//         {/* <h2 className="text-xl font-semibold">{testRequest.name}</h2> */}
-//         {/* Reward Badge (Conditional Rendering) */}
-//         {rewardName && ( // Only render badge if rewardName is truthy
-//           <Badge
-//             variant="secondary" // Use appropriate variant
-//             style={{ fontSize: '1rem', backgroundColor: 'var(--pastel-green)' }} // Adjusted size
-//           >
-//             Reward: {rewardName}
-//           </Badge>
-//         )}
-//       </div>
-//       <p className="mb-1">{testRequest.description || 'No description provided.'}</p>
-//       {testRequest.demoUrl && ( // Only show URL if it exists
-//         <p>
-//           Demo/Instructions:{' '}
-//           <a
-//             href={testRequest.demoUrl}
-//             target="_blank"
-//             rel="noopener noreferrer"
-//             className="text-blue-600 hover:underline"
-//           >
-//             {testRequest.demoUrl}
-//           </a>
-//         </p>
-//       )}
-//     </div>
-//   );
-// }
 
 function AddTestRequestButton({
   projectId,
@@ -333,8 +263,6 @@ function AddTestRequestButton({
         <DialogHeader>
           <DialogTitle>Create New Test Request</DialogTitle>
         </DialogHeader>
-        {/* Pass the actual IDs to the AddBugs component */}
-        {/* <AddBugs projectId={projectId} testRequestId={testRequestId} /> */}
         <AddTestRequest
           projectId={projectId}
           onSuccess={() => {

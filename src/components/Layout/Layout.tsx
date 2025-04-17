@@ -15,13 +15,21 @@ const steps: TourStep[] = [
     content: (
       <div>Looking to find some bugs and claim rewards? Here is the place for you.</div>
     ),
+    navigateTo: '/requests',
     selectorId: 'forDebugger',
     position: 'right',
     onClickWithinArea: () => {},
   },
   {
+    navigateTo: '/projects',
     content: <div>Does your project need testing? This section is the spot.</div>,
     selectorId: 'forDeveloper',
+    position: 'right',
+    onClickWithinArea: () => {},
+  },
+  {
+    content: <div>Just getting started? Create a new project.</div>,
+    selectorId: 'createProject',
     position: 'right',
     onClickWithinArea: () => {},
   },
