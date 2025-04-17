@@ -218,7 +218,10 @@ function Projects() {
                       </p>
                     )}
                     <br />
-                    <AddTestRequestButton projectId={project.projectId} />
+                    <AddTestRequestButton
+                      projectId={project.projectId}
+                      getData={getData}
+                    />
                   </CardContent>
                   <CardFooter className="flex justify-end"></CardFooter>
                 </Card>
@@ -314,7 +317,13 @@ function Projects() {
 //   );
 // }
 
-function AddTestRequestButton({ projectId }: { projectId: string }) {
+function AddTestRequestButton({
+  projectId,
+  getData,
+}: {
+  projectId: string;
+  getData: () => void;
+}) {
   const [dialogOpen, setDialogOpen] = useState(false);
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -330,7 +339,10 @@ function AddTestRequestButton({ projectId }: { projectId: string }) {
         {/* <AddBugs projectId={projectId} testRequestId={testRequestId} /> */}
         <AddTestRequest
           projectId={projectId}
-          onSuccess={() => setDialogOpen(false)}
+          onSuccess={() => {
+            setDialogOpen(false);
+            getData();
+          }}
           onCancel={() => setDialogOpen(false)}
         ></AddTestRequest>
       </DialogContent>
