@@ -261,7 +261,10 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
   // --- Render Component ---
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6 max-h-[80vh] overflow-y-auto px-1"
+      >
         {/* Campus Selection */}
         <FormField
           control={form.control}
@@ -376,7 +379,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
           name="reward"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Reward (Optional)</FormLabel>
+              <FormLabel>Reward </FormLabel>
               <Select
                 onValueChange={field.onChange}
                 value={field.value} // Controlled component
@@ -392,7 +395,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
                             ? 'Loading rewards...'
                             : rewards.length === 0
                               ? 'No rewards available for this campus'
-                              : 'Select a reward (optional)'
+                              : 'Select a reward'
                       }
                     />
                   </SelectTrigger>

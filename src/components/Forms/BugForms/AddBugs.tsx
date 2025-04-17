@@ -171,9 +171,11 @@ type AddBugsFormValues = z.infer<typeof formSchema>;
 function AddBugs({
   projectId,
   testRequestId,
+  onSuccess,
 }: {
   projectId: string;
   testRequestId: string;
+  onSuccess?: () => void; // Optional callback for success
 }) {
   // const { toast } = useToast(); // Optional
   const [projects, setProjects] = useState<Project[]>([]);
@@ -382,6 +384,7 @@ function AddBugs({
       // toast({ title: 'Success', description: 'Bug report submitted successfully!' });
       alert('Bug report submitted successfully!');
       form.reset(); // Reset the form fields
+      if (onSuccess) onSuccess();
       // Also reset dependent state if needed
       setTestRequestsForProject([]);
       setSelectedTestRequestDetails(null);
@@ -403,7 +406,10 @@ function AddBugs({
       {/* Removed H1 assuming this form is embedded */}
       {/* <h1 className="text-2xl font-semibold mb-4 text-center">Bug Report Form</h1> */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 max-h-[80vh] overflow-y-auto px-1"
+        >
           {/* Project Selection */}
 
           {/* Proposed Reward Selection */}

@@ -62,55 +62,57 @@ export interface Project extends Record<string, unknown> {
 function Projects() {
   // State now holds Project and its associated TestRequests
   const [projects, setProjects] = useState<[Project, TestRequest[]][]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        // 1. Fetch Projects
-        const response = await fetch('/api/projects/campus/northwestern1');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const body: Project[] = await response.json();
-
-        // 2. Fetch Test Requests for each Project
-        const testRequestPromises = body.map((project) =>
-          fetch(`/api/projects/${project.projectId}/requests`) // Assuming this endpoint exists
-            .then((res) => {
-              if (!res.ok) {
-                console.error(
-                  `Failed to fetch requests for project ${project.projectId}: ${res.status}`,
-                );
-                return []; // Return empty array on error for this project
-              }
-              return res.json();
-            })
-            .catch((error) => {
-              console.error(
-                `Error fetching requests for project ${project.projectId}:`,
-                error,
-              );
-              return []; // Return empty array on network error etc.
-            }),
-        );
-
-        const testRequestResults = await Promise.allSettled(testRequestPromises);
-        const testRequestBodies: TestRequest[][] = testRequestResults.map((result) =>
-          result.status === 'fulfilled' ? result.value : [],
-        );
-
-        setProjects(
-          body.map((project, i) => {
-            const requests = Array.isArray(testRequestBodies[i])
-              ? testRequestBodies[i]
-              : [];
-            return [project, requests];
-          }),
-        );
-      } catch (error) {
-        console.error('Error fetching projects:', error);
+  const getData = async () => {
+    try {
+      // 1. Fetch Projects
+      const response = await fetch('/api/projects/campus/northwestern1');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
+      const body: Project[] = await response.json();
+
+      // 2. Fetch Test Requests for each Project
+      const testRequestPromises = body.map((project) =>
+        fetch(`/api/projects/${project.projectId}/requests`) // Assuming this endpoint exists
+          .then((res) => {
+            if (!res.ok) {
+              console.error(
+                `Failed to fetch requests for project ${project.projectId}: ${res.status}`,
+              );
+              return []; // Return empty array on error for this project
+            }
+            return res.json();
+          })
+          .catch((error) => {
+            console.error(
+              `Error fetching requests for project ${project.projectId}:`,
+              error,
+            );
+            return []; // Return empty array on network error etc.
+          }),
+      );
+
+      const testRequestResults = await Promise.all(testRequestPromises);
+      // Filter out potential errors if needed, here we assume successful responses are TestRequest[][]
+      const testRequestBodies: TestRequest[][] = testRequestResults as TestRequest[][];
+
+      // 3. Combine Projects and their Test Requests into state
+      setProjects(
+        body.map((project, i) => {
+          // Ensure testRequestBodies[i] is an array, default to empty if fetch failed
+          const requests = Array.isArray(testRequestBodies[i])
+            ? testRequestBodies[i]
+            : [];
+          return [project, requests];
+        }),
+      );
+    } catch (error) {
+      console.error('Error fetching projects:', error); // Log the error
+    }
+  };
+  useEffect(() => {
     getData();
   }, []);
 
@@ -123,7 +125,7 @@ function Projects() {
             Projects
           </h1>
           {/* Create Project Dialog Trigger */}
-          <Dialog>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="default">Create new project</Button>
             </DialogTrigger>
@@ -132,7 +134,13 @@ function Projects() {
                 <DialogTitle>Create New Project</DialogTitle>
               </DialogHeader>
               {/* Replace AddBugs with a form specific to creating Projects if available */}
-              <AddProject />
+              <AddProject
+                onSuccess={() => {
+                  setDialogOpen(false);
+                  getData();
+                }}
+                onCancel={() => setDialogOpen(false)}
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -209,7 +217,10 @@ function Projects() {
                       </p>
                     )}
                     <br />
-                    <AddTestRequestButton projectId={project.projectId} />
+                    <AddTestRequestButton
+                      projectId={project.projectId}
+                      onSuccess={getData}
+                    />
                   </CardContent>
                   <CardFooter className="flex justify-end"></CardFooter>
                 </Card>
@@ -305,9 +316,16 @@ function Projects() {
 //   );
 // }
 
-function AddTestRequestButton({ projectId }: { projectId: string }) {
+function AddTestRequestButton({
+  projectId,
+  onSuccess,
+}: {
+  projectId: string;
+  onSuccess: () => void;
+}) {
+  const [dialogOpen, setDialogOpen] = useState(false);
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Create a new test request</Button>
       </DialogTrigger>
@@ -318,7 +336,14 @@ function AddTestRequestButton({ projectId }: { projectId: string }) {
         </DialogHeader>
         {/* Pass the actual IDs to the AddBugs component */}
         {/* <AddBugs projectId={projectId} testRequestId={testRequestId} /> */}
-        <AddTestRequest projectId={projectId}></AddTestRequest>
+        <AddTestRequest
+          projectId={projectId}
+          onSuccess={() => {
+            setDialogOpen(false);
+            if (onSuccess) onSuccess();
+          }}
+          onCancel={() => setDialogOpen(false)}
+        ></AddTestRequest>
       </DialogContent>
     </Dialog>
   );
