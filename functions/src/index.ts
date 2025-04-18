@@ -16,6 +16,12 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
 
 app.use('/api/bug-reports/', bugReportRouter);
 app.use('/api/projects/', projectRouter);
