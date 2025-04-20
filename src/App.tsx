@@ -5,7 +5,7 @@ import './index.css';
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
-import Layout from './components/Layout/Layout';
+import Layout from './components/layout/layout.component';
 import Requests from './pages/Debugger/Requests/Requests';
 // import AddProject from './components/ProjectForms/AddProject';
 import Bugs from './pages/Developer/Bugs/Bugs';

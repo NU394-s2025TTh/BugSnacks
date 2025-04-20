@@ -1,3 +1,5 @@
+// THIS CODE IS NOT BEING USED IN THE PROJECT
+
 import './Navbar.css';
 
 import add from '../../assets/add.svg';
