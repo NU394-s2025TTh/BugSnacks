@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
+import { CardSkeleton } from '../../../components/ui/CardSkeleton';
 import { FirebaseImageViewer, FirebaseVideoPlayer } from './FirebaseMedia';
-
 // Enums and interfaces per your definitions
 export enum TestRequestStatus {
   OPEN = 'OPEN',
@@ -71,6 +72,7 @@ function Bugs() {
   const [testRequests, setTestRequests] = useState<TestRequest[]>([]);
   // State for all bug reports across test requests
   const [bugReports, setBugReports] = useState<BugReport[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch projects for a given campus
   useEffect(() => {
@@ -143,91 +145,111 @@ function Bugs() {
         ),
       );
     };
-
+    setLoading(false);
     if (testRequests.length > 0) {
       fetchBugReportsForTestRequests();
     }
   }, [testRequests]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-5xl font-bold text-center mb-8">Found Bugs</h1>
+    <div>
+      <div className="w-[90%] mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="flex justify-left text-5xl font-semibold font-sans text-[color:var(--type-green)]">
+            Found Bugs
+          </h1>
+        </div>
+        <Separator />
+      </div>
+
+      <br />
+
       {projects.length > 0 ? (
         projects.map((project) => {
-          // Filter test requests for the current project
           const projectTestRequests = testRequests.filter(
             (req) => req.projectId === project.projectId,
           );
           return (
-            <div key={project.projectId} className="mb-12">
-              <h2 className="text-4xl font-semibold mb-4">Project: {project.name}</h2>
+            <div key={project.projectId} className="mb-8">
+              <div className="w-[90%] mx-auto">
+                <h2 className="text-4xl mb-6">Project: {project.name}</h2>
+              </div>
               {projectTestRequests.length > 0 ? (
                 projectTestRequests.map((testReq) => {
-                  // Filter bug reports for this test request
                   const bugsForThisRequest = bugReports.filter(
                     (bug) => bug.requestId === testReq.requestId,
                   );
                   return (
-                    <div key={testReq.requestId} className="mb-8 border p-4 rounded-lg">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-3xl font-semibold">
-                          Test Request: {testReq.title}
-                        </h3>
-                      </div>
-                      {bugsForThisRequest.length > 0 ? (
-                        bugsForThisRequest.map((bug) => (
-                          <Card
-                            key={bug.reportId}
-                            className="w-[90%] md:w-3/4 bg-[color:var(--little-gray)] rounded-3xl mx-auto mb-4"
-                          >
-                            <CardHeader className="flex md:flex-row justify-between flex-col">
-                              <div className="bg-[color:var(--gray)] p-3 px-12 rounded-3xl text-4xl font-semibold">
-                                {bug.title}
-                              </div>
-                              <div className="flex flex-col">
-                                <div className="bg-[color:var(--little-gray)] text-2xl italic">
-                                  Proposed reward time
+                    <Card
+                      key={testReq.requestId}
+                      className="w-[90%] rounded-3xl bg-[color:var(--light-gray)] mb-6 mx-auto"
+                    >
+                      <CardHeader>
+                        <h3 className="text-3xl">Test Request: {testReq.title}</h3>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-xl mb-4">{testReq.description}</p>
+                        {bugsForThisRequest.length > 0 ? (
+                          bugsForThisRequest.map((bug) => (
+                            <Card
+                              key={bug.reportId}
+                              className="w-[90%] rounded-3xl bg-[color:var(--light-gray)] mb-6 mx-auto"
+                            >
+                              <CardHeader className="flex md:flex-row justify-between flex-col">
+                                <div className="bg-[color:var(--gray)] p-2 px-12 rounded-3xl text-3xl">
+                                  {bug.title}
                                 </div>
-                                <div className="bg-[color:var(--little-gray)] text-2xl font-semibold text-right">
-                                  Tomorrow @ 4
+                                <div className="flex flex-col items-end">
+                                  {' '}
+                                  {/* Align content to the right */}
+                                  <div className="text-1xl italic">
+                                    Proposed reward time
+                                  </div>
+                                  <div className="text-1xl text-right">Tomorrow @ 4</div>
+                                  <Badge className="text-lg mt-1">
+                                    Severity: {bug.severity}
+                                  </Badge>{' '}
+                                  {/* Add margin above */}
                                 </div>
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <>
-                                {bug.video ? (
-                                  <FirebaseVideoPlayer
-                                    filename={bug.video}
-                                    pathPrefix="BugVideos/"
-                                  />
-                                ) : bug.attachments?.length ? (
-                                  <FirebaseImageViewer
-                                    filename={bug.attachments?.[0]}
-                                    pathPrefix="BugAttachments/"
-                                    style={{ maxWidth: '200px', maxHeight: '200px' }}
-                                  />
-                                ) : (
-                                  <></>
-                                )}
-                                <p className="text-center text-xl mt-4">
-                                  {bug.description}
-                                </p>
-                                <Badge>{bug.severity}</Badge>
-                              </>
-                            </CardContent>
-                            <CardFooter className="flex justify-end">
-                              <Button className="rounded-3xl text-2xl bg-green-600 p-6 text-black font-semibold">
-                                View Details
-                              </Button>
-                            </CardFooter>
-                          </Card>
-                        ))
-                      ) : (
-                        <p className="text-center text-xl">
-                          No bugs found for this test request.
-                        </p>
-                      )}
-                    </div>
+                              </CardHeader>
+                              <CardContent>
+                                <>
+                                  {bug.video ? (
+                                    <FirebaseVideoPlayer
+                                      filename={bug.video}
+                                      pathPrefix="BugVideos/"
+                                    />
+                                  ) : bug.attachments?.length ? (
+                                    <FirebaseImageViewer
+                                      filename={bug.attachments?.[0]}
+                                      pathPrefix="BugAttachments/"
+                                      style={{
+                                        maxWidth: '200px',
+                                        maxHeight: '200px',
+                                      }}
+                                    />
+                                  ) : (
+                                    <></>
+                                  )}
+                                  <p className="text-center text-xl mt-4">
+                                    {bug.description}
+                                  </p>
+                                </>
+                              </CardContent>
+                              <CardFooter className="flex justify-end">
+                                <Button className="rounded-3xl text-2xl bg-[var(--pastel-green)] p-6 text-black font-semibold">
+                                  View Details
+                                </Button>
+                              </CardFooter>
+                            </Card>
+                          ))
+                        ) : (
+                          <p className="text-center text-xl">
+                            No bugs found for this test request.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
                   );
                 })
               ) : (
@@ -238,6 +260,8 @@ function Bugs() {
             </div>
           );
         })
+      ) : loading ? (
+        <CardSkeleton />
       ) : (
         <p className="text-center text-xl">No projects found.</p>
       )}
