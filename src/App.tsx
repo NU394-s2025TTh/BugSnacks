@@ -5,6 +5,8 @@ import './index.css';
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
+import { ThemeProvider } from '@/components/theme-provider';
+
 import Layout from './components/layout/layout.component';
 import Requests from './pages/Debugger/Requests/requests.page';
 // import AddProject from './components/ProjectForms/AddProject';
@@ -14,16 +16,19 @@ import Projects from './pages/Developer/Projects/projects.page';
 function App() {
   return (
     <div>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Requests />} />
-            <Route path="requests" element={<Requests />} />
-            <Route path="bugs" element={<Bugs />} />
-            <Route path="projects" element={<Projects />} />
-          </Route>
-        </Routes>
-      </Router>
+      {/* theme provider used for toggling b/w dark and light mode */}
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <Router>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Requests />} />
+              <Route path="requests" element={<Requests />} />
+              <Route path="bugs" element={<Bugs />} />
+              <Route path="projects" element={<Projects />} />
+            </Route>
+          </Routes>
+        </Router>
+      </ThemeProvider>
     </div>
   );
 }

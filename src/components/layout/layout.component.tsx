@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
+import { ModeToggle } from '@/components/mode-toggle';
 import { TourAlertDialog, TourProvider, TourStep, useTour } from '@/components/tour';
 import { AppSidebar } from '@/components/ui/app-sidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -62,6 +63,9 @@ export default function Layout() {
       <SidebarProvider>
         <AppSidebar />
         <main className="flex-1 p-4">
+          <div className="absolute top-4 right-4">
+            <ModeToggle />
+          </div>
           <SidebarTrigger />
           <Outlet />
         </main>
