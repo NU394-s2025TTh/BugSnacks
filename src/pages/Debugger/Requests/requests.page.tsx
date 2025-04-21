@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 
-import AddBugs from '@/components/Forms/BugForms/AddBugs';
+import AddBugs from '@/components/forms/bug-forms/add-bugs.component';
 // Import Accordion components and remove Collapsible imports
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'; // Added
-import { Badge } from '@/components/ui/badge';
+} from '@/components/ui/Accordion';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/Card';
 import { CardSkeleton } from '@/components/ui/CardSkeleton';
 // Removed Collapsible imports
 import {
