@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/Card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 import { FirebaseImageViewer, FirebaseVideoPlayer } from './FirebaseMedia';
 

@@ -3,16 +3,16 @@ import { useEffect, useState } from 'react';
 // Assuming AddBugs might be used for creating projects too, or a specific component exists
 import AddProject from '@/components/forms/project-forms/add-project.component';
 import AddTestRequest from '@/components/forms/test-request-forms/add-test-request.component';
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/Card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/Dialog';
+} from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 
 import { CardSkeleton } from '../../../components/ui/CardSkeleton';

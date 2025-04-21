@@ -7,10 +7,10 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/Accordion';
-import { Badge } from '@/components/ui/Badge';
+} from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/Card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { CardSkeleton } from '@/components/ui/CardSkeleton';
 // Removed Collapsible imports
 import {
