@@ -155,7 +155,7 @@ function Bugs() {
     <div>
       <div className="w-[90%] mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="flex justify-left text-5xl font-semibold font-sans text-[color:var(--type-green)]">
+          <h1 className="flex justify-left text-5xl font-semibold font-sans text-[color:var(--type-green)] dark:text-[color:var(--pastel-green)]">
             Found Bugs
           </h1>
         </div>
@@ -196,7 +196,7 @@ function Bugs() {
                               className="w-[90%] rounded-3xl bg-[color:var(--light-gray)] mb-6 mx-auto"
                             >
                               <CardHeader className="flex md:flex-row justify-between flex-col">
-                                <div className="bg-[color:var(--gray)] p-2 px-12 rounded-3xl text-3xl">
+                                <div className="bg-[color:var(--gray)] p-2 px-12 rounded-3xl text-3xl dark:text-black">
                                   {bug.title}
                                 </div>
                                 <div className="flex flex-col items-end">

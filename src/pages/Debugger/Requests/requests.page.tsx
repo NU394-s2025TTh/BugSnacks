@@ -127,7 +127,7 @@ function Requests() {
     <div>
       <div className="w-[90%] mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="flex justify-left text-5xl font-semibold font-sans text-[color:var(--type-green)]">
+          <h1 className="flex justify-left text-5xl font-semibold font-sans text-[color:var(--type-green)] dark:text-[color:var(--pastel-green)]">
             Hunt for bugs!
           </h1>
         </div>
