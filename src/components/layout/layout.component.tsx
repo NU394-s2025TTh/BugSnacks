@@ -97,9 +97,9 @@ export default function Layout() {
 
   if (!user) {
     return (
-      <div className="grid md:grid-cols-2 p-16 justify-center items-center min-h-screen ">
+      <div className="flex flex-col justify-center items-center min-h-screen px-8 py-16 gap-2 space-y-6">
         <div className="flex flex-col text-center gap-2">
-          <div className="flex flex-row max-w-full items-center justify-center flex-wra overflow-hidden">
+          <div className="flex flex-row max-w-full items-center justify-center flex-wrap overflow-hidden">
             <img
               src={bugsnacks}
               alt="logo for bugsnacks"
@@ -113,17 +113,19 @@ export default function Layout() {
           </div>
           <div>
             <h1 className="text-lg mb-4"> hey there!</h1>
-            <h1 className="text-lg mb-4">
+            <h1 className="text-md mb-4">
               welcome to BugSnacks: the wildcat way to test applications.{' '}
             </h1>
           </div>
         </div>
-        <button
-          className="px-4 py-2 bg-[var(--nice-green)] text-gray-900 rounded hover:brightness-90 mx-auto hover:scale-110 cursor-pointer"
-          onClick={login}
-        >
-          Log in with Google
-        </button>
+        <div className="flex justify-center md:justify-start">
+          <button
+            className="px-6 py-3 bg-[var(--nice-green)] text-black font-medium rounded-lg shadow-md hover:shadow-lg hover:brightness-95 transition-transform transform hover:scale-105 cursor-pointer"
+            onClick={login}
+          >
+            Log in with Google
+          </button>
+        </div>
       </div>
     );
   }
@@ -134,8 +136,8 @@ export default function Layout() {
         <AppSidebar />
         <main className="flex-1 p-4">
           <div className="absolute top-4 right-4 flex gap-2 items-center">
-            <span className="text-sm text-gray-600 dark:text-white">
-              {user.displayName}
+            <span className="text-sm font-medium text-gray-600 dark:text-white">
+              {user.displayName ?? 'User'}
             </span>
             <button
               onClick={logout}
