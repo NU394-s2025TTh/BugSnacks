@@ -92,6 +92,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
   const [errorCampuses, setErrorCampuses] = useState<string | null>(null);
   const [errorRewards, setErrorRewards] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const userId = useUserId();
 
   const form = useForm<CreateTestRequestFormValues>({
     resolver: zodResolver(formSchema),
@@ -170,7 +171,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
   const onSubmit = async (values: CreateTestRequestFormValues) => {
     setIsSubmitting(true);
     // Use placeholder for developerId as requested
-    const id = useUserId() ?? 'missing_id';
+    const id = userId ?? 'missing_id';
 
     let selectedRewardObject: ApiReward | undefined = undefined;
     if (values.reward) {

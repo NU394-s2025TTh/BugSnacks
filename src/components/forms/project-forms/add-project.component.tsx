@@ -83,6 +83,7 @@ function AddProject({ onSuccess, onCancel }: CreateProjectFormProps) {
   const [isLoadingCampuses, setIsLoadingCampuses] = useState(false);
   const [errorCampuses, setErrorCampuses] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const userId = useUserId();
 
   const form = useForm<CreateProjectFormValues>({
     resolver: zodResolver(formSchema),
@@ -125,7 +126,7 @@ function AddProject({ onSuccess, onCancel }: CreateProjectFormProps) {
   // --- Submission Handler ---
   const onSubmit = async (values: CreateProjectFormValues) => {
     setIsSubmitting(true);
-    const id = useUserId() ?? 'missing_id';
+    const id = userId ?? 'missing_id';
 
     // Construct the payload expected by the backend API
     // Exclude fields the backend should generate (like projectId)

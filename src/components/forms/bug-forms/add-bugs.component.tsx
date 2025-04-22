@@ -172,6 +172,7 @@ function AddBugs({
 
   const [isLoadingTestRequestDetails, setIsLoadingTestRequestDetails] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const userId = useUserId();
 
   const form = useForm<AddBugsFormValues>({
     resolver: zodResolver(formSchema),
@@ -270,7 +271,7 @@ function AddBugs({
         throw new Error('Invalid reward data selected.');
       }
       // 4. Prepare Firestore document
-      const testerIdPlaceholder = useUserId() ?? 'user123'; // Replace with actual user ID when available
+      const testerIdPlaceholder = userId ?? 'user123'; // Replace with actual user ID when available
 
       const bugReportData: BugReportPayload = {
         requestId: testRequestId,
