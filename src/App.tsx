@@ -17,7 +17,7 @@ function App() {
   return (
     <div>
       {/* theme provider used for toggling b/w dark and light mode */}
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <Router>
           <Routes>
             <Route path="/" element={<Layout />}>
