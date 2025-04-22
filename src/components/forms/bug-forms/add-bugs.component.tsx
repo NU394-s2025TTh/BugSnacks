@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { db, storage } from '@/firebaseConfig';
+import { useUserId } from '@/hooks/useUserId';
 
 // --- Enums and Interfaces
 export enum BugReportSeverity {
@@ -269,7 +270,7 @@ function AddBugs({
         throw new Error('Invalid reward data selected.');
       }
       // 4. Prepare Firestore document
-      const testerIdPlaceholder = 'user123'; // Replace with actual user ID when available
+      const testerIdPlaceholder = useUserId() ?? 'user123'; // Replace with actual user ID when available
 
       const bugReportData: BugReportPayload = {
         requestId: testRequestId,
