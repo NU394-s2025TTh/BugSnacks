@@ -123,8 +123,9 @@ function Projects() {
     setLoading(false);
   };
   useEffect(() => {
+    if (!id) return; // ⛔ Don’t fetch until user ID is ready
     getData();
-  }, []);
+  }, [id]);
 
   return (
     <div>

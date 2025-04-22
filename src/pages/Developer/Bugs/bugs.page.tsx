@@ -79,6 +79,7 @@ function Bugs() {
 
   // Fetch projects for a given campus
   useEffect(() => {
+    if (!id) return;
     const fetchProjects = async () => {
       try {
         const response = await fetch(`/api/users/${id}/projects`);
@@ -89,8 +90,9 @@ function Bugs() {
         console.error('Error fetching projects:', error);
       }
     };
+    // ⛔ Don’t fetch until user ID is ready
     fetchProjects();
-  }, []);
+  }, [id]);
 
   // Once projects are loaded, fetch test requests for each project
   useEffect(() => {
