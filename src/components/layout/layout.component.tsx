@@ -1,5 +1,6 @@
 import '@/app.css';
 
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -9,6 +10,7 @@ import {
 } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import bugsnacks from '@/assets/bugsnacks.svg';
 import caterpillar from '@/assets/caterpillar.svg';
@@ -89,11 +91,23 @@ export default function Layout() {
     }
   };
 
+  const navigate = useNavigate();
+
   const logout = async () => {
     await signOut(auth);
+    navigate('/');
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (loading)
+    return (
+      <div className="p-8 flex flex-col min-h-screen">
+        <DotLottieReact
+          src="https://lottie.host/4a5ad354-9119-4a34-b704-2854f3ca707d/QqjS1Wd6f8.lottie"
+          loop
+          autoplay
+        />
+      </div>
+    );
 
   if (!user) {
     return (
