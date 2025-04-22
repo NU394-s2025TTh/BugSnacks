@@ -5,9 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useUserId } from '@/hooks/useUserId';
 
 import { CardSkeleton } from '../../../components/ui/CardSkeleton';
 import { FirebaseImageViewer, FirebaseVideoPlayer } from './FirebaseMedia';
+
 // Enums and interfaces per your definitions
 export enum TestRequestStatus {
   OPEN = 'OPEN',
@@ -73,12 +75,13 @@ function Bugs() {
   // State for all bug reports across test requests
   const [bugReports, setBugReports] = useState<BugReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const id = useUserId();
 
   // Fetch projects for a given campus
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch('/api/projects/campus/northwestern1');
+        const response = await fetch(`/api/users/${id}/projects`);
         const data: Project[] = await response.json();
         console.log('Fetched Projects:', data);
         setProjects(data);

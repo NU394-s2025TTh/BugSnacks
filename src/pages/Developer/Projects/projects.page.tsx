@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { useUserId } from '@/hooks/useUserId';
 
 import { CardSkeleton } from '../../../components/ui/CardSkeleton';
 
@@ -66,11 +67,12 @@ function Projects() {
   const [projects, setProjects] = useState<[Project, TestRequest[]][]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const id = useUserId();
 
   const getData = async () => {
     try {
       // 1. Fetch Projects
-      const response = await fetch('/api/projects/campus/northwestern1');
+      const response = await fetch(`/api/users/${id}/projects`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

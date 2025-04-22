@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useUserId } from '@/hooks/useUserId';
 
 export enum TestRequestStatus {
   OPEN = 'OPEN',
@@ -169,7 +170,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
   const onSubmit = async (values: CreateTestRequestFormValues) => {
     setIsSubmitting(true);
     // Use placeholder for developerId as requested
-    const developerIdPlaceholder = 'user_placeholder_id'; // Replace if needed
+    const id = useUserId() ?? 'missing_id';
 
     let selectedRewardObject: ApiReward | undefined = undefined;
     if (values.reward) {
@@ -185,7 +186,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
 
     const payload: TestRequestPayload & { createdAt: Date } = {
       projectId: projectId, // From props
-      developerId: developerIdPlaceholder,
+      developerId: id,
       title: values.title,
       description: values.description,
       demoUrl: values.demoUrl || undefined,
