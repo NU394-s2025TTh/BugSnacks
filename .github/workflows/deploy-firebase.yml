@@ -11,15 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout Code
+      # 1. Checkout Repo
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Setup Node
+      # 2. Setup Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '23' 
+          node-version: '23'
 
       # 3. Create Service Account File
       - name: Create Service Account File
@@ -30,23 +30,20 @@ jobs:
       # 4. Install dependencies
       - name: Install dependencies
         run: npm ci
-        working-directory: ./BugSnacks
 
-      # 5. Build the Vite project
-      - name: Build Vite site
+      # 5. Build Vite project
+      - name: Build the project
         run: npm run build
-        working-directory: ./BugSnacks
 
-      # 6. Deploy to Firebase
+      # 6. Deploy to Firebase Hosting
       - name: Deploy to Firebase Hosting
         run: |
           npx firebase-tools deploy \
             --project bugsnacks2 \
             --only hosting \
             --non-interactive
-        working-directory: ./BugSnacks
 
-      # 7. Clean up service account key (not strictly necessary since runners are ephemeral)
-      - name: Cleanup Service Account
+      # 7. Clean up (optional)
+      - name: Cleanup service account file
         if: always()
         run: rm -f ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
