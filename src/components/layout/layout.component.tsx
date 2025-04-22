@@ -1,4 +1,4 @@
-import '@/app.css';
+import '@/App.css';
 
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import {

@@ -1,59 +1,52 @@
 name: Deploy to Firebase (bugsnacks2)
 
-# Controls when the workflow will run
 on:
   push:
     branches:
-      - main # Deploy when changes are pushed to the main branch
-  workflow_dispatch: # Allows manual triggering from the Actions tab
+      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest # Use the latest Ubuntu runner
+    runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout Repository Code
+      # 1. Checkout Code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js environment
+      # 2. Setup Node
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '23' # Specify your desired Node.js version
+          node-version: '23' 
 
-      # Optional: Install project dependencies (e.g., for Cloud Functions)
-      # Uncomment if you have dependencies in package.json (e.g., inside a functions folder)
-      # - name: Install Dependencies
-      #   run: npm ci # Or 'npm install' or 'yarn install'
-      #   # If your functions are in a subdirectory, specify the working directory:
-      #   # working-directory: ./functions
-
-      # 3. Decode Service Account Key and Set Environment Variable
+      # 3. Create Service Account File
       - name: Create Service Account File
-        id: create_sa_file # Give this step an ID to reference its output if needed
-        # Use 'run' to execute shell commands
         run: |
-          # Create a temporary file path
-          SA_FILE_PATH="${{ runner.temp }}/firebase-sa-key.json"
-          # Echo the secret content into the temporary file
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_BUGSNACKS2 }}' > $SA_FILE_PATH
-          # Set the environment variable for subsequent steps
-          # Using GITHUB_ENV allows the variable to persist across 'run' steps in the job
-          echo "GOOGLE_APPLICATION_CREDENTIALS=${SA_FILE_PATH}" >> $GITHUB_ENV
-          echo "Created service account file at ${SA_FILE_PATH}"
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_BUGSNACKS2 }}' > ${{ runner.temp }}/firebase-sa-key.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ runner.temp }}/firebase-sa-key.json" >> $GITHUB_ENV
 
-      # 4. Deploy to Firebase
-      - name: Deploy to Firebase
-        run: |
-          npx firebase-tools deploy --project bugsnacks2 --non-interactive  # Add other targets as needed (e.g., firestore:rules)
-          # Use --non-interactive to prevent prompts in CI
-          # Explicitly specify the --project ID - this is highly recommended in CI/CD!
-          # Specify exactly what to deploy with --only to avoid accidental deploys
+      # 4. Install dependencies
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./BugSnacks
 
-      # Optional: Cleanup the temporary service account file (runner is ephemeral anyway)
-      - name: Cleanup Service Account File
-        if: always() # Run this even if the deploy step fails
+      # 5. Build the Vite project
+      - name: Build Vite site
+        run: npm run build
+        working-directory: ./BugSnacks
+
+      # 6. Deploy to Firebase
+      - name: Deploy to Firebase Hosting
         run: |
-          echo "Removing temporary service account file..."
-          rm -f ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
+          npx firebase-tools deploy \
+            --project bugsnacks2 \
+            --only hosting \
+            --non-interactive
+        working-directory: ./BugSnacks
+
+      # 7. Clean up service account key (not strictly necessary since runners are ephemeral)
+      - name: Cleanup Service Account
+        if: always()
+        run: rm -f ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
