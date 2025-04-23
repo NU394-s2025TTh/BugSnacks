@@ -1,4 +1,19 @@
+/**
+ * AddBugs component allows testers to submit bug reports for a specific test request.
+ * It renders a form with title, description, severity, optional file uploads (video and attachments),
+ * and a preferred reward selector fetched from the server.
+ * Validates inputs using Zod and react-hook-form, uploads files to Firebase Storage,
+ * and submits the bug report payload to an API endpoint.
+ *
+ * Props:
+ * - projectId: ID of the project under test
+ * - testRequestId: ID of the test request to fetch rewards for
+ * - onSuccess: Optional callback after successful submission
+ */
+//Most comments made in the file were done by OpenAI's o4-mini model
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 // src/components/BugForms/AddBugs.tsx
 'use client';
 
@@ -98,6 +113,7 @@ export interface BugReportPayload {
 }
 
 // --- Constants ---
+// Defines max file size and allowed MIME types for uploads
 const MAX_FILE_SIZE_MB = 10;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm'];
@@ -109,6 +125,7 @@ const ALLOWED_ATTACHMENT_TYPES = [
 ];
 
 // --- Zod Schema Definition ---
+// Validates form inputs, including file type/count/size constraints
 const formSchema = z.object({
   title: z.string().min(5, { message: 'Title must be at least 5 characters.' }),
   description: z
@@ -166,14 +183,17 @@ function AddBugs({
   testRequestId: string;
   onSuccess?: () => void;
 }) {
+  // State for the selected test request detail and its rewards
   const [selectedTestRequestDetails, setSelectedTestRequestDetails] =
     useState<TestRequest | null>(null);
   const [availableRewards, setAvailableRewards] = useState<Reward[]>([]);
 
+  // Loading and submission indicators
   const [isLoadingTestRequestDetails, setIsLoadingTestRequestDetails] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userId = useUserId();
 
+  // Using react-hook-form with Zod resolver
   const form = useForm<AddBugsFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -188,7 +208,7 @@ function AddBugs({
   const selectedTestRequestId = testRequestId;
 
   useEffect(() => {
-    // Reset reward state when test request changes
+    // Reset reward and form field when test request changes
     setSelectedTestRequestDetails(null);
     setAvailableRewards([]);
     form.resetField('proposedRewardString');
@@ -207,7 +227,7 @@ function AddBugs({
           const data: TestRequest = await response.json();
           setSelectedTestRequestDetails(data);
 
-          // Extract rewards for the dropdown
+          // Populate available rewards dropdown
           if (data.reward) {
             setAvailableRewards(Array.isArray(data.reward) ? data.reward : [data.reward]);
           } else {
@@ -226,9 +246,9 @@ function AddBugs({
       };
       fetchTestRequestDetails();
     }
-  }, [selectedTestRequestId, form]); // Depend on selectedTestRequestId
+  }, [selectedTestRequestId, form]);
 
-  // --- File Upload Helper ---
+  // Upload helper: stores file in Firebase with UUID-based filename
   const uploadFile = async (file: File, pathPrefix: string): Promise<string> => {
     const fileExtension = file.name.split('.').pop();
     const uniqueFilename = `${uuidv4()}.${fileExtension}`;
@@ -241,7 +261,7 @@ function AddBugs({
     return uniqueFilename;
   };
 
-  // --- Form Submission Handler ---
+  // Handles form submission: uploads files then sends bug report payload
   const onSubmit = async (data: AddBugsFormValues) => {
     setIsSubmitting(true);
     console.log('Form Data:', data);
@@ -250,10 +270,12 @@ function AddBugs({
     const uploadedAttachmentFilenames: string[] = [];
 
     try {
+      // Upload video if present
       if (data.video && data.video.length > 0) {
         uploadedVideoFilename = await uploadFile(data.video[0], 'BugVideos');
       }
 
+      // Upload multiple attachments in parallel
       if (data.attachments && data.attachments.length > 0) {
         const uploadPromises = Array.from(data.attachments).map((file) =>
           uploadFile(file, 'BugAttachments'),
@@ -262,6 +284,7 @@ function AddBugs({
         uploadedAttachmentFilenames.push(...results);
       }
 
+      // Parse selected reward JSON string to object
       let proposedRewardObject: Reward | undefined = undefined;
       try {
         if (data.proposedRewardString) {
@@ -270,8 +293,9 @@ function AddBugs({
       } catch (e) {
         throw new Error('Invalid reward data selected.');
       }
-      // 4. Prepare Firestore document
-      const testerIdPlaceholder = userId ?? 'user123'; // Replace with actual user ID when available
+
+      // Prepare bug report payload
+      const testerIdPlaceholder = userId ?? 'user123';
 
       const bugReportData: BugReportPayload = {
         requestId: testRequestId,
@@ -284,6 +308,7 @@ function AddBugs({
         attachments: uploadedAttachmentFilenames,
       };
 
+      // Send POST request to the API
       const response = await fetch('/api/bug-reports/', {
         method: 'POST',
         headers: {
@@ -304,11 +329,10 @@ function AddBugs({
         throw new Error('Failed to submit bug report.');
       }
 
-      const _ = await response.json();
-
+      await response.json();
       toast.success('Bug report submitted successfully!');
 
-      // reset for next time its opened
+      // Reset form and local state after success
       form.reset();
       if (onSuccess) onSuccess();
       setSelectedTestRequestDetails(null);
@@ -324,7 +348,7 @@ function AddBugs({
     }
   };
 
-  // --- Render Form ---
+  // Render the form using UI components
   return (
     <>
       <Form {...form}>
@@ -332,8 +356,6 @@ function AddBugs({
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-6 max-h-[80vh] overflow-y-auto px-1"
         >
-          {/* Project Selection */}
-
           {/* Proposed Reward Selection */}
           <FormField
             control={form.control}
@@ -367,7 +389,6 @@ function AddBugs({
                   </FormControl>
                   <SelectContent>
                     {availableRewards.map((reward, index) => (
-                      // Store stringified reward object as the value
                       <SelectItem
                         key={`${reward.location}-${reward.type}-${index}`}
                         value={JSON.stringify(reward)}
@@ -452,7 +473,7 @@ function AddBugs({
                   <SelectContent>
                     {Object.entries(BugReportSeverity).map(([key, level]) => (
                       <SelectItem key={key} value={level}>
-                        {level} {/* Display LOW, MEDIUM, HIGH */}
+                        {level}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -467,18 +488,16 @@ function AddBugs({
           <FormField
             control={form.control}
             name="video"
-            render={(
-              { field: { value, onChange, ...fieldProps } }, // Destructure to handle FileList
-            ) => (
+            render={({ field: { value, onChange, ...fieldProps } }) => (
               <FormItem>
                 <FormLabel>Video Attachment (Optional)</FormLabel>
                 <FormControl>
                   <Input
                     {...fieldProps}
                     type="file"
-                    accept={ALLOWED_VIDEO_TYPES.join(',')} // Use constant for accepted types
+                    accept={ALLOWED_VIDEO_TYPES.join(',')}
                     onChange={(event) => {
-                      onChange(event.target.files); // Pass FileList to react-hook-form
+                      onChange(event.target.files);
                     }}
                   />
                 </FormControl>
@@ -495,19 +514,17 @@ function AddBugs({
           <FormField
             control={form.control}
             name="attachments"
-            render={(
-              { field: { value, onChange, ...fieldProps } }, // Destructure
-            ) => (
+            render={({ field: { value, onChange, ...fieldProps } }) => (
               <FormItem>
                 <FormLabel>Other Attachments (Optional)</FormLabel>
                 <FormControl>
                   <Input
                     {...fieldProps}
                     type="file"
-                    multiple // Allow multiple files
+                    multiple
                     accept={ALLOWED_ATTACHMENT_TYPES.join(',')}
                     onChange={(event) => {
-                      onChange(event.target.files); // Pass FileList
+                      onChange(event.target.files);
                     }}
                   />
                 </FormControl>

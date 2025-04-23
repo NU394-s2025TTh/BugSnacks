@@ -1,3 +1,11 @@
+/**
+ * This component renders a form for creating a new Test Request associated with a project.
+ * It includes dynamic campus and reward selection fetched from APIs, client-side validation
+ * with Zod, and handles submission with loading and error states.
+ */
+
+// Most comments made in the file were done by OpenAI's o4-mini model
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -59,7 +67,7 @@ export interface TestRequestPayload {
 // Interface for Campus data from API
 
 // --- Zod Schema Definition ---
-
+// Defines validation rules and error messages for the form fields.
 const formSchema = z.object({
   campusId: z.string().min(1, { message: 'Campus selection is required.' }),
   title: z.string().min(5, { message: 'Title must be at least 5 characters.' }),
@@ -76,24 +84,27 @@ const formSchema = z.object({
 type CreateTestRequestFormValues = z.infer<typeof formSchema>;
 
 // --- Component Props ---
+// projectId ties the request to a specific project, callbacks for success/cancel.
 interface CreateTestRequestFormProps {
-  projectId: string; // Passed in, as a test request belongs to a project
-  onSuccess?: () => void; // Optional callback on successful submission
-  onCancel?: () => void; // Optional callback for a cancel action
+  projectId: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-// --- The Form Component ---
-
 function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFormProps) {
+  // State for campus list, loaded from API
   const [campuses, setCampuses] = useState<string[]>([]);
+  // State for rewards tied to selected campus
   const [rewards, setRewards] = useState<ApiReward[]>([]);
   const [isLoadingCampuses, setIsLoadingCampuses] = useState(false);
   const [isLoadingRewards, setIsLoadingRewards] = useState(false);
   const [errorCampuses, setErrorCampuses] = useState<string | null>(null);
   const [errorRewards, setErrorRewards] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Hook to get the current developer/user ID
   const userId = useUserId();
 
+  // Initialize React Hook Form with Zod resolver and default field values
   const form = useForm<CreateTestRequestFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -101,14 +112,15 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
       title: '',
       description: '',
       demoUrl: '',
-      reward: '', // Store stringified JSON or identifier
-      status: TestRequestStatus.OPEN, // Default to OPEN
+      reward: '',
+      status: TestRequestStatus.OPEN,
     },
   });
 
+  // Watch the campusId field to trigger reward fetch when it changes
   const selectedCampusId = form.watch('campusId');
 
-  // Effect to fetch campuses
+  // Effect to fetch available campuses once on mount
   useEffect(() => {
     const fetchCampuses = async () => {
       setIsLoadingCampuses(true);
@@ -133,17 +145,17 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
     fetchCampuses();
   }, []);
 
+  // Effect to fetch rewards whenever a campus is selected
   useEffect(() => {
     if (selectedCampusId) {
       const fetchRewards = async () => {
         setIsLoadingRewards(true);
         setErrorRewards(null);
         setRewards([]); // Clear previous rewards
-        form.setValue('reward', ''); // Reset reward selection
+        form.setValue('reward', ''); // Reset reward field
         try {
           const response = await fetch(`/api/campuses/${selectedCampusId}/rewards`);
           if (!response.ok) {
-            // Handle cases like 404 Not Found if a campus has no rewards endpoint
             if (response.status === 404) {
               console.warn(`No rewards endpoint found for campus ${selectedCampusId}`);
               return;
@@ -163,14 +175,15 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
       };
       fetchRewards();
     } else {
-      setRewards([]); // Clear rewards if no campus is selected
+      // Clear rewards when no campus is selected
+      setRewards([]);
     }
-  }, [selectedCampusId, form]); // Depend on selectedCampusId and form instance
+  }, [selectedCampusId, form]);
 
   // --- Submission Handler ---
   const onSubmit = async (values: CreateTestRequestFormValues) => {
     setIsSubmitting(true);
-    // Use placeholder for developerId as requested
+    // Fallback if user ID not available
     const id = userId ?? 'missing_id';
 
     let selectedRewardObject: ApiReward | undefined = undefined;
@@ -179,34 +192,33 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
         selectedRewardObject = JSON.parse(values.reward) as ApiReward;
       } catch (e) {
         console.error('Failed to parse selected reward JSON', e);
-        // Optionally show an error to the user
         setIsSubmitting(false);
         return;
       }
     }
 
+    // Build payload matching API expectations, including optional reward
     const payload: TestRequestPayload & { createdAt: Date } = {
-      projectId: projectId, // From props
+      projectId: projectId,
       developerId: id,
       title: values.title,
       description: values.description,
       demoUrl: values.demoUrl || undefined,
       reward: selectedRewardObject
         ? {
-            name: selectedRewardObject.name, // The full name from API reward
+            name: selectedRewardObject.name,
             location: selectedRewardObject.location,
             type: selectedRewardObject.type,
           }
         : undefined,
       status: values.status,
-      createdAt: new Date(), // Set current date/time
+      createdAt: new Date(),
     };
 
     console.log('Submitting Payload:', payload);
 
     try {
       const response = await fetch('/api/test-requests/', {
-        // Use your POST endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -215,17 +227,15 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
       });
 
       if (!response.ok) {
-        // Try to get error message from backend response body
-        const errorData = await response.text(); // or response.json() if backend sends structured errors
+        const errorData = await response.text();
         console.error('API Error Response:', errorData);
         throw new Error(`API error! status: ${response.status}. ${errorData || ''}`);
       }
 
-      // Handle success
       const result = await response.json();
       console.log('Submission successful:', result);
       toast.success('Test Request created successfully!');
-      form.reset(); // Reset form after successful submission
+      form.reset();
       setRewards([]);
       if (onSuccess) onSuccess();
     } catch (error) {
@@ -278,8 +288,9 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
                     </SelectItem>
                   )}
                   {campuses.map((campus) => (
+                    // Assuming campus array holds string names
                     <SelectItem key={campus} value={campus}>
-                      {campus} {/* Assuming campus object has 'name' */}
+                      {campus}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -290,7 +301,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
                   Select the campus where this test request is relevant.
                 </FormDescription>
               )}
-              <FormMessage /> {/* For Zod validation messages */}
+              <FormMessage /> {/* Displays validation error from Zod */}
             </FormItem>
           )}
         />
@@ -362,7 +373,7 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
               <FormLabel>Reward </FormLabel>
               <Select
                 onValueChange={field.onChange}
-                value={field.value} // Controlled component
+                value={field.value}
                 disabled={isLoadingRewards || !selectedCampusId || rewards.length === 0}
               >
                 <FormControl>
@@ -381,17 +392,15 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {/* Allow deselecting */}
+                  {/* Allow opting out of a reward */}
                   <SelectItem value="none">No Reward</SelectItem>
-                  {/* Error message if needed */}
                   {errorRewards && (
                     <SelectItem value="-" disabled>
                       Error loading rewards
                     </SelectItem>
                   )}
-                  {/* Map available rewards */}
                   {rewards.map((reward, index) => (
-                    // Store stringified reward object as value
+                    // Stringify reward object to store full metadata in form value
                     <SelectItem
                       key={`${reward.location}-${reward.type}-${index}`}
                       value={JSON.stringify(reward)}
@@ -407,9 +416,6 @@ function AddTestRequest({ projectId, onSuccess, onCancel }: CreateTestRequestFor
                   Select an available reward for testers on the chosen campus.
                 </FormDescription>
               )}
-              {/* Zod message handled automatically */}
-              {/* <FormMessage /> */}
-              {/* Need custom handling if reward parsing fails onSubmit */}
             </FormItem>
           )}
         />

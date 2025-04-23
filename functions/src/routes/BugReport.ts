@@ -1,3 +1,11 @@
+/**
+ * Router for bug report CRUD operations.
+ * - Initializes Firestore with specific settings.
+ * - Defines endpoints to create, read, update, and delete bug reports.
+ * - Uses typia to validate incoming requests.
+ *
+ * All comments made in the file were done by OpenAI's o4-mini model
+ */
 import { Request, Response, Router } from 'express';
 import * as admin from 'firebase-admin';
 import { createAssert } from 'typia';
@@ -7,12 +15,15 @@ import { BugReport, Reward } from '../models/models';
 import { ParamsDictionary, validateRequest } from '../utils/typedreq';
 
 const db = admin.firestore();
+// Ignore undefined properties when writing to Firestore documents
 db.settings({ ignoreUndefinedProperties: true });
 
+// Reference to the 'bugs' collection in Firestore
 const bugsCollection = db.collection('bugs');
 
 const bugReportRouter = Router();
 
+// Simple health-check / greeting endpoint
 bugReportRouter.get('/', (req, res) => {
   res.send('Hello BugReporter!');
 });
@@ -32,6 +43,7 @@ interface CreateBugReportRequestBody {
 
 bugReportRouter.post(
   '/',
+  // Validate request body using typia-generated assertion
   validateRequest({ body: createAssert<CreateBugReportRequestBody>() }),
   async (req: Request<any, any, CreateBugReportRequestBody, any>, res: Response) => {
     const {
@@ -45,7 +57,9 @@ bugReportRouter.post(
       attachments,
     } = req.body;
     const createdAt = new Date();
-    const reportId = bugsCollection.doc().id; // Generate a new document ID
+    // Generate a new document ID without creating it yet
+    const reportId = bugsCollection.doc().id;
+    // Use Partial<BugReport> since some fields (e.g., status) are set here
     const bugReportData: Partial<BugReport> = {
       reportId,
       requestId,
@@ -75,6 +89,7 @@ interface GetBugReportParams extends ParamsDictionary {
 
 bugReportRouter.get(
   '/:id',
+  // Validate path parameter 'id'
   validateRequest({ params: createAssert<GetBugReportParams>() }),
   async (req: Request<GetBugReportParams, any, any, any>, res: Response) => {
     const { id } = req.params;
@@ -82,6 +97,7 @@ bugReportRouter.get(
       const bugReportDoc = await bugsCollection.doc(id).get();
       if (!bugReportDoc.exists) {
         res.status(404).json({ error: 'Bug report not found' });
+        return;
       }
       res.status(200).json(bugReportDoc.data());
     } catch (error) {
@@ -93,9 +109,10 @@ bugReportRouter.get(
 
 bugReportRouter.patch(
   '/:id',
+  // Validate both params and body; body omits immutable fields
   validateRequest({
-    body: createAssert<Omit<Partial<BugReport>, 'reportId' | 'testerId' | 'createdAt'>>(),
     params: createAssert<GetBugReportParams>(),
+    body: createAssert<Omit<Partial<BugReport>, 'reportId' | 'testerId' | 'createdAt'>>(),
   }),
   async (
     req: Request<GetBugReportParams, any, Partial<BugReport>, any>,
@@ -118,9 +135,9 @@ bugReportRouter.patch(
 );
 
 // DELETE: Delete bug report by id
-
 bugReportRouter.delete(
   '/:id',
+  // Validate path parameter 'id'
   validateRequest({ params: createAssert<GetBugReportParams>() }),
   async (req: Request<GetBugReportParams, any, any, any>, res: Response) => {
     const { id } = req.params;

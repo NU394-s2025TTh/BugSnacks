@@ -1,6 +1,16 @@
+/**
+ * This file defines the Requests page for the BugSnacks application.
+ * It fetches a list of projects and their associated test requests,
+ * then displays them in cards with accordions for each test request.
+ * Users can open a dialog to submit bug reports for specific test requests.
+ *
+ * Most comments made in the file were done by OpenAI's o4-mini model
+ */
+
 import { useEffect, useState } from 'react';
 
 import AddBugs from '@/components/forms/bug-forms/add-bugs.component';
+// Component for bug submission form, used inside the dialog
 // Import Accordion components and remove Collapsible imports
 import {
   Accordion,
@@ -8,10 +18,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+// Custom accordion UI components for expandable test request sections
 import { Badge } from '@/components/ui/badge';
+// Badge component used to highlight platform and rewards
 import { Button } from '@/components/ui/button';
+// Button component for actions such as reporting a bug
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+// Card layout to group project information
 import { CardSkeleton } from '@/components/ui/CardSkeleton';
+// Skeleton loader displayed while data is being fetched
 // Removed Collapsible imports
 import {
   Dialog,
@@ -20,7 +35,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+// Dialog and related components for modal overlay
 import { Separator } from '@/components/ui/separator';
+// Separator line used between header and content
 
 // --- Interfaces and Enums (unchanged) ---
 export enum TestRequestStatus {
@@ -69,30 +86,32 @@ export enum Platform {
 // --- ---
 
 function Requests() {
+  // State to hold pairs of Project and their TestRequest arrays
   const [projects, setProjects] = useState<[Project, TestRequest[]][]>([]);
+  // Controls whether the bug submission dialog is open
   const [dialogOpen, setDialogOpen] = useState(false);
+  // Loading flag to show skeleton or content
   const [loading, setLoading] = useState(true);
 
+  // Fetches projects and their test requests from the API
   const getData = async () => {
     try {
-      // Fetch projects
-      const response = await fetch(
-        '/api/projects/campus/northwestern1', // Using provided example URL
-      );
+      // Fetch projects list for a specific campus
+      const response = await fetch('/api/projects/campus/northwestern1');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const projectsData: Project[] = await response.json();
 
-      // Fetch test requests for each project
+      // Prepare promises to fetch requests for each project
       const testRequestPromises = projectsData.map((project) =>
-        fetch(`/api/projects/${project.projectId}/requests`) // Assuming this API endpoint exists relative to your app
+        fetch(`/api/projects/${project.projectId}/requests`)
           .then((res) => {
             if (!res.ok) {
               console.error(
                 `Failed to fetch requests for project ${project.projectId}: ${res.status}`,
               );
-              return []; // Return empty array on error for this project
+              return [];
             }
             return res.json();
           })
@@ -101,24 +120,27 @@ function Requests() {
               `Error fetching requests for project ${project.projectId}:`,
               err,
             );
-            return []; // Return empty array on network error etc.
+            return [];
           }),
       );
 
+      // Wait for all fetches and handle rejections gracefully
       const testRequestResults: TestRequest[][] = (
         await Promise.allSettled(testRequestPromises)
       ).map((result) => (result.status === 'fulfilled' ? result.value : []));
 
-      // Combine projects with their respective test requests
+      // Combine projects with their fetched test requests
       setProjects(
         projectsData.map((project, index) => [project, testRequestResults[index]]),
       );
     } catch (error) {
       console.error('Failed to fetch projects or test requests:', error);
-      // Optionally set an error state here to show in the UI
+      // Error state could be set here for UI feedback
     }
     setLoading(false);
   };
+
+  // Run data fetch on component mount
   useEffect(() => {
     getData();
   }, []);
@@ -141,20 +163,16 @@ function Requests() {
           const [project, testRequests] = tup;
           return (
             <div key={project.projectId || index} className="mb-8">
-              {' '}
-              {/* Use projectId for key */}
               <div className="flex justify-center">
                 <Card className="w-[90%] rounded-3xl">
                   <CardHeader
                     className="flex flex-wrap md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0"
                     style={{ rowGap: '0.5rem' }}
                   >
-                    {/* Project Name Badge (Assuming name is always present) */}
                     <h2 style={{ fontSize: 32 }}>{project.name}</h2>
-                    {/* Platform Badge (Conditional Rendering) */}
-                    {project.platform && ( // Only render if platform exists
+                    {project.platform && (
                       <Badge
-                        variant="secondary" // Use appropriate variant
+                        variant="secondary"
                         style={{ fontSize: 32, backgroundColor: 'var(--pastel-green)' }}
                       >
                         {project.platform}
@@ -164,7 +182,6 @@ function Requests() {
                   <CardContent>
                     <p className="text-2xl mb-4">{project.description}</p>
 
-                    {/* Use Accordion instead of Collapsible */}
                     {testRequests && testRequests.length > 0 ? (
                       <>
                         <h3 className="text-lg font-semibold mb-2">
@@ -172,44 +189,38 @@ function Requests() {
                         </h3>
                         <Accordion type="single" collapsible className="w-full">
                           {testRequests.map((testRequest) => (
-                            <AccordionItem
-                              key={testRequest.id}
-                              value={testRequest.id} // Use unique ID for value
-                            >
+                            <AccordionItem key={testRequest.id} value={testRequest.id}>
                               <AccordionTrigger>
                                 <div className="flex md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0 mb-2 flex-1">
-                                  {/* Fallback text */}
-                                  {/* <div className="flex flex-row flex-wrap justify-between align-middle flex-1"> */}
                                   {testRequest.title || 'Unnamed Test Request'}
                                   {(Array.isArray(testRequest.reward)
-                                    ? testRequest.reward[0]?.name // Get name from first reward if array
-                                    : testRequest.reward?.name) && ( // Only render badge if rewardName is truthy
+                                    ? testRequest.reward[0]?.name
+                                    : testRequest.reward?.name) && (
                                     <Badge
-                                      variant="secondary" // Use appropriate variant
+                                      variant="secondary"
                                       style={{
                                         fontSize: '1rem',
                                         backgroundColor: 'var(--pastel-green)',
-                                      }} // Adjusted size
+                                      }}
                                     >
                                       Reward:{' '}
                                       {Array.isArray(testRequest.reward)
-                                        ? testRequest.reward[0]?.name // Get name from first reward if array
+                                        ? testRequest.reward[0]?.name
                                         : testRequest.reward?.name}
                                     </Badge>
                                   )}
-                                  {/* </div> */}
                                 </div>
                               </AccordionTrigger>
                               <AccordionContent>
-                                {/* Fetch and display details for this specific test request */}
+                                {/* Displays details for a single test request */}
                                 <TestRequestSection testRequest={testRequest} />
                                 <div className="mt-4">
-                                  {/* Pass correct props to the dialog */}
+                                  {/* Dialog trigger for reporting bugs */}
                                   <SubmitBugDialog
                                     projectId={project.projectId}
                                     testRequestId={testRequest.id}
                                     dialogOpen={dialogOpen}
-                                    setDialogOpen={setDialogOpen} // Pass the state setter
+                                    setDialogOpen={setDialogOpen}
                                     getData={getData}
                                   />
                                 </div>
@@ -239,11 +250,10 @@ function Requests() {
   );
 }
 
-// --- TestRequestSection (Modified for graceful badge handling) ---
+// Section that would fetch and display additional test request details if needed
 function TestRequestSection({ testRequest }: { testRequest: TestRequest }) {
-  // const [testRequest, setTestRequest] = useState<TestRequest | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null); // Add error state
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -268,9 +278,8 @@ function TestRequestSection({ testRequest }: { testRequest: TestRequest }) {
 
   return (
     <div>
-      <div className="flex md:flex-row justify-between items-start md:items-center flex-col gap-2 md:gap-0 mb-2"></div>
       <p className="mb-1">{testRequest.description || 'No description provided.'}</p>
-      {testRequest.demoUrl && ( // Only show URL if it exists
+      {testRequest.demoUrl && (
         <p>
           Demo/Instructions:{' '}
           <a
@@ -287,19 +296,19 @@ function TestRequestSection({ testRequest }: { testRequest: TestRequest }) {
   );
 }
 
-// --- SubmitBugDialog (Modified to accept correct props) ---
+// Dialog component that wraps the AddBugs form to report a bug
 function SubmitBugDialog({
   projectId,
-  testRequestId, // Changed prop name for clarity
+  testRequestId,
   dialogOpen,
   setDialogOpen,
   getData,
 }: {
   projectId: string;
-  testRequestId: string; // Use the ID
-  dialogOpen: boolean; // prop to control dialog state
-  setDialogOpen: (open: boolean) => void; // function to set dialog state
-  getData: () => void; // function to refresh data
+  testRequestId: string;
+  dialogOpen: boolean;
+  setDialogOpen: (open: boolean) => void;
+  getData: () => void;
 }) {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -308,11 +317,8 @@ function SubmitBugDialog({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          {/* Optionally make title more specific */}
           <DialogTitle>Submit Bug Report</DialogTitle>
         </DialogHeader>
-        {/* Pass the actual IDs to the AddBugs component */}
-        {/* <AddBugs projectId={projectId} testRequestId={testRequestId} /> */}
         <AddBugs
           projectId={projectId}
           testRequestId={testRequestId}

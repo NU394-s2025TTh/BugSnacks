@@ -1,3 +1,13 @@
+/*
+ * Page component to display bug reports grouped by projects and test requests.
+ * - Fetches projects for the current user via an API route.
+ * - For each project, fetches all associated test requests.
+ * - For each test request, fetches all associated bug reports.
+ * - Renders nested cards for projects, test requests, and bug reports,
+ *   including media previews and a "View Details" button.
+ */
+// Most comments made in the file were done by OpenAI's o4-mini model
+
 'use client';
 import { useEffect, useState } from 'react';
 
@@ -5,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+// custom hook to obtain the current user's ID (used for scoping API calls)
 import { useUserId } from '@/hooks/useUserId';
 
 import { CardSkeleton } from '../../../components/ui/CardSkeleton';
@@ -77,11 +88,12 @@ function Bugs() {
   const [loading, setLoading] = useState(true);
   const id = useUserId();
 
-  // Fetch projects for a given campus
+  // only fetch when user ID is available
   useEffect(() => {
     if (!id) return;
     const fetchProjects = async () => {
       try {
+        // fetch projects for this developer
         const response = await fetch(`/api/users/${id}/projects`);
         const data: Project[] = await response.json();
         console.log('Fetched Projects:', data);
@@ -98,6 +110,7 @@ function Bugs() {
   useEffect(() => {
     const fetchTestRequestsForProjects = async () => {
       let allTestRequests: TestRequest[] = [];
+      // fetch all test requests in parallel, one per project
       await Promise.allSettled(
         projects.map(async (project) => {
           try {
@@ -113,6 +126,7 @@ function Bugs() {
         }),
       );
       console.log('Fetched Test Requests:', allTestRequests);
+      // intended to keep only fulfilled results (here flat array of TestRequest)
       const settledRequests = allTestRequests.filter((result) =>
         result.status === 'fulfilled' ? result.value : [],
       );
@@ -128,6 +142,7 @@ function Bugs() {
   useEffect(() => {
     const fetchBugReportsForTestRequests = async () => {
       let allBugReports: BugReport[] = [];
+      // fetch bug reports in parallel for each request
       await Promise.allSettled(
         testRequests.map(async (req) => {
           try {
@@ -145,11 +160,13 @@ function Bugs() {
       );
       console.log('Fetched Bug Reports:', allBugReports);
       setBugReports(
+        // keep only those settled successfully
         allBugReports.filter((result) =>
           result.status === 'fulfilled' ? result.value : [],
         ),
       );
     };
+    // stop loading spinner once we've kicked off bug-fetch
     setLoading(false);
     if (testRequests.length > 0) {
       fetchBugReportsForTestRequests();
@@ -170,6 +187,7 @@ function Bugs() {
       <br />
 
       {projects.length > 0 ? (
+        // iterate over each project
         projects.map((project) => {
           const projectTestRequests = testRequests.filter(
             (req) => req.projectId === project.projectId,
@@ -180,6 +198,7 @@ function Bugs() {
                 <h2 className="text-4xl mb-6">Project: {project.name}</h2>
               </div>
               {projectTestRequests.length > 0 ? (
+                // iterate over test requests of this project
                 projectTestRequests.map((testReq) => {
                   const bugsForThisRequest = bugReports.filter(
                     (bug) => bug.requestId === testReq.requestId,
@@ -195,6 +214,7 @@ function Bugs() {
                       <CardContent>
                         <p className="text-xl mb-4">{testReq.description}</p>
                         {bugsForThisRequest.length > 0 ? (
+                          // render each bug report as a card
                           bugsForThisRequest.map((bug) => (
                             <Card
                               key={bug.reportId}
@@ -205,7 +225,6 @@ function Bugs() {
                                   {bug.title}
                                 </div>
                                 <div className="flex flex-col items-end">
-                                  {' '}
                                   {/* Align content to the right */}
                                   <div className="text-1xl italic">
                                     Proposed reward time
@@ -214,11 +233,11 @@ function Bugs() {
                                   <Badge className="text-lg mt-1">
                                     Severity: {bug.severity}
                                   </Badge>{' '}
-                                  {/* Add margin above */}
                                 </div>
                               </CardHeader>
                               <CardContent>
                                 <>
+                                  {/* show video if provided, otherwise first attachment */}
                                   {bug.video ? (
                                     <FirebaseVideoPlayer
                                       filename={bug.video}

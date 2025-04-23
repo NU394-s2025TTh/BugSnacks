@@ -1,3 +1,12 @@
+/**
+ * Layout component for the application.
+ * - Manages user authentication state (loading, login, logout).
+ * - Shows a Lottie animation while checking auth state.
+ * - Displays a welcome/login screen for unauthenticated users.
+ * - Renders the main app layout with sidebar, header, and content for authenticated users.
+ */
+// All comments made in the file were done by OpenAI's o4-mini model
+
 import '@/App.css';
 
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
@@ -55,6 +64,7 @@ export function Toured() {
   const [openTour, setOpenTour] = useState(false);
 
   useEffect(() => {
+    // Initialize guided tour steps, then open the tour dialog shortly after mount
     setSteps(steps);
     const timer = setTimeout(() => {
       setOpenTour(true);
@@ -75,6 +85,7 @@ export default function Layout() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Listen for Firebase auth state changes and update local state
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
@@ -83,6 +94,7 @@ export default function Layout() {
   }, []);
 
   const login = async () => {
+    // Sign in using Google popup
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
@@ -94,6 +106,7 @@ export default function Layout() {
   const navigate = useNavigate();
 
   const logout = async () => {
+    // Sign out user and redirect to home
     await signOut(auth);
     navigate('/');
   };
@@ -101,6 +114,7 @@ export default function Layout() {
   if (loading)
     return (
       <div className="p-8 flex flex-col min-h-screen">
+        {/* Show a loading animation while auth state is pending */}
         <DotLottieReact
           src="https://lottie.host/4a5ad354-9119-4a34-b704-2854f3ca707d/QqjS1Wd6f8.lottie"
           loop
@@ -133,6 +147,7 @@ export default function Layout() {
           </div>
         </div>
         <div className="flex justify-center md:justify-start">
+          {/* Trigger Google login */}
           <button
             className="px-6 py-3 bg-[var(--nice-green)] text-black font-medium rounded-lg shadow-md hover:shadow-lg hover:brightness-95 transition-transform transform hover:scale-105 cursor-pointer"
             onClick={login}
@@ -143,16 +158,20 @@ export default function Layout() {
       </div>
     );
   }
+
   return (
     <RootLayout>
       <Toured />
+      {/* Wraps the UI in a sidebar context */}
       <SidebarProvider>
         <AppSidebar />
         <main className="flex-1 p-4">
           <div className="absolute top-4 right-4 flex gap-2 items-center">
+            {/* Display signed-in user's name */}
             <span className="text-sm font-medium text-gray-600 dark:text-white">
               {user.displayName ?? 'User'}
             </span>
+            {/* Logout button */}
             <button
               onClick={logout}
               className="text-sm text-red-500 hover:text-red-600 cursor-pointer"
@@ -165,6 +184,7 @@ export default function Layout() {
           <Outlet />
         </main>
       </SidebarProvider>
+      {/* Global toaster for notifications */}
       <Toaster />
     </RootLayout>
   );

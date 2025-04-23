@@ -1,8 +1,16 @@
+/*
+This CSS file imports Tailwind CSS and an animation plugin, defines a custom dark-mode variant, sets up an inline theme with design tokens (radii and color variables),
+provides default (light) mode values under :root, overrides those values under a .dark class for dark mode, and applies base layer utility styles globally.
+*/
+/* All comments made in the file were done by OpenAI's o4-mini model */
+
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Define a custom variant for dark mode using the .dark class on any ancestor */
 @custom-variant dark (&:is(.dark *));
 
+/* Create an inline theme block mapping CSS variables for radii and a full set of color tokens */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -41,6 +49,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Define root-level default values (light mode) for all design tokens */
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -76,6 +85,7 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Override the same variables when .dark is present on the root for dark mode */
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -110,6 +120,7 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Base layer: apply default borders and outlines, and set background/text on body */
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -1,3 +1,18 @@
+/*
+ * File: models.ts
+ * Description:
+ *   Defines TypeScript interfaces for the application's data models,
+ *   each corresponding to a Firestore document schema. Models include:
+ *     - User: stores account and creation info
+ *     - Reward: describes prize details and location
+ *     - Campus: groups rewards by campus
+ *     - Project: links a developer and campus with project metadata
+ *     - TestRequest: represents QA requests with rewards and status
+ *     - BugReport: captures bug details, severity, attachments, and workflow status
+ *   All interfaces use read-only properties to reflect immutable Firestore fields,
+ *   and dates are represented as JS Date objects for timestamp fields.
+ */
+// The above comment made in the file was done by OpenAI's o4-mini model
 import {
   BugReportSeverity,
   BugReportStatus,

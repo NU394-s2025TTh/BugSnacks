@@ -1,3 +1,12 @@
+// All comments made in the file were done by OpenAI's o4-mini model
+/**
+ * Defines string-based enumeration types for various domain-specific values:
+ *   - TestRequestStatus: possible states of a test request.
+ *   - BugReportSeverity: severity levels for bug reports.
+ *   - BugReportStatus: stages in the bug report handling process.
+ *   - RewardType: types of rewards that can be issued.
+ *   - Platform: supported client platforms.
+ */
 export enum TestRequestStatus {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',

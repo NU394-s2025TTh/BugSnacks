@@ -1,3 +1,11 @@
+/*
+Most comments made in the file were done by OpenAI's o4-mini model
+
+This module defines an Express router for managing "testRequests" in Firestore.
+It provides endpoints to create, read, update, and delete test requests,
+as well as to fetch bugs associated with a specific test request.
+*/
+
 import { Request, Response, Router } from 'express';
 import * as admin from 'firebase-admin';
 import { createAssert } from 'typia';
@@ -7,10 +15,10 @@ import { Reward, TestRequest } from '../models/models';
 import { ParamsDictionary, validateRequest } from '../utils/typedreq';
 
 const testRequestRouter = Router();
-
 const db = admin.firestore();
 const testRequestCollection = db.collection('testRequests');
 
+// Simple health check or welcome endpoint
 testRequestRouter.get('/', (req, res) => {
   res.send('Hello TestRequest!');
 });
@@ -25,6 +33,7 @@ interface CreateTestRequestBody {
   status: TestRequestStatus;
 }
 
+// Validate request body using typia-generated assertion
 testRequestRouter.post(
   '/',
   validateRequest({ body: createAssert<CreateTestRequestBody>() }),
@@ -58,6 +67,7 @@ interface GetTestRequestParams extends ParamsDictionary {
   id: string;
 }
 
+// Fetch a single test request by its document ID
 testRequestRouter.get(
   '/:id',
   validateRequest({ params: createAssert<GetTestRequestParams>() }),
@@ -81,6 +91,7 @@ interface UpdateTestRequestParams extends ParamsDictionary {
   id: string;
 }
 
+// Allow partial updates but prevent modifying key fields
 testRequestRouter.patch(
   '/:id',
   validateRequest({
@@ -113,6 +124,7 @@ interface DeleteTestRequestParams extends ParamsDictionary {
   id: string;
 }
 
+// Remove a test request by ID
 testRequestRouter.delete(
   '/:id',
   validateRequest({ params: createAssert<DeleteTestRequestParams>() }),
@@ -133,14 +145,14 @@ testRequestRouter.delete(
   },
 );
 
-// find all bugReports by testRequestId
-
+// Prepare to fetch bugs linked to a specific test request
 const bugCollection = db.collection('bugs');
 
 interface GetTestRequestBugsParams extends ParamsDictionary {
   id: string;
 }
 
+// Retrieve all bug reports associated with a given test request ID
 testRequestRouter.get(
   '/:id/bugs',
   validateRequest({ params: createAssert<GetTestRequestBugsParams>() }),

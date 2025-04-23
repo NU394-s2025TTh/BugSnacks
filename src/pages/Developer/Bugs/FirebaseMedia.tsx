@@ -1,8 +1,17 @@
+/*
+  This file exports two React client components, FirebaseVideoPlayer and FirebaseImageViewer.
+  Each component fetches a download URL from Firebase Storage for a given filename and path prefix,
+  manages loading and error states, and renders the appropriate HTML5 media element (video or img)
+  with sensible defaults, accessibility, and fallbacks.
+*/
+// Most comments made in the file were done by OpenAI's o4-mini model
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/FirebaseVideoPlayer.tsx
 'use client';
 
 import { getDownloadURL, ref } from 'firebase/storage';
+// Using React hooks to manage component state and lifecycle
 import { useEffect, useState } from 'react';
 
 // Import your configured storage instance
@@ -52,20 +61,20 @@ function FirebaseVideoPlayer({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Reset state if filename changes
+    // Reset state when filename or prefix changes
     setVideoUrl(null);
     setIsLoading(true);
     setError(null);
 
     if (!filename) {
+      // No filename provided, skip fetch
       setIsLoading(false);
-      // No filename provided, so not an error, just nothing to load
       return;
     }
 
     const fetchVideoUrl = async () => {
       try {
-        // Ensure pathPrefix ends with a slash if needed
+        // Build full storage path
         const fullPath = `${pathPrefix.endsWith('/') ? pathPrefix : pathPrefix + '/'}${filename}`;
         const videoRef = ref(storage, fullPath);
         const url = await getDownloadURL(videoRef);
@@ -77,27 +86,27 @@ function FirebaseVideoPlayer({
         } else {
           setError('Could not load video.');
         }
-        setVideoUrl(null); // Clear URL on error
+        setVideoUrl(null);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchVideoUrl();
-  }, [filename, pathPrefix]); // Re-run effect if filename or pathPrefix changes
+  }, [filename, pathPrefix]);
 
-  // --- Render Logic ---
-
+  // Render loading state
   if (isLoading) {
     return <p className="text-center p-4">Loading video...</p>;
   }
 
+  // Render error if occurred
   if (error) {
     return <p className="text-center text-red-500 p-4">Error: {error}</p>;
   }
 
+  // Handle missing URL (no file or silent failure)
   if (!videoUrl) {
-    // This covers the case where filename was initially null/undefined or if URL fetch failed silently (shouldn't happen with error state)
     return (
       <p className="text-center text-gray-500 p-4">
         No video attached or video could not be loaded.
@@ -105,7 +114,7 @@ function FirebaseVideoPlayer({
     );
   }
 
-  // Attempt to get MIME type for the source tag
+  // Determine MIME type for source tag
   const mimeType = filename ? getMimeTypeFromFilename(filename) : undefined;
 
   return (
@@ -115,18 +124,9 @@ function FirebaseVideoPlayer({
       height={height}
       className={className}
       controls
-      preload="metadata" // Good practice for videos
+      preload="metadata"
     >
-      {/* Use the fetched download URL */}
       <source src={videoUrl} type={mimeType} />
-      {/* Optional: Add fallback text or track elements */}
-      {/* Example track element (ensure the src is correct) */}
-      {/* <track
-                src="/path/to/your/captions.vtt"
-                kind="captions"
-                srcLang="en"
-                label="English"
-            /> */}
       Your browser does not support the video tag.
     </video>
   );
@@ -153,9 +153,9 @@ function FirebaseImageViewer({
   filename,
   pathPrefix,
   altText,
-  width, // No default width, let CSS handle typically
-  height, // No default height
-  className = 'max-w-full h-auto rounded', // Basic default styling
+  width,
+  height,
+  className = 'max-w-full h-auto rounded',
   style,
 }: FirebaseImageViewerProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -163,20 +163,20 @@ function FirebaseImageViewer({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Reset state if filename changes
+    // Reset state when filename or prefix changes
     setImageUrl(null);
     setIsLoading(true);
     setError(null);
 
     if (!filename) {
+      // No filename provided, skip fetch
       setIsLoading(false);
-      // No filename provided, so not an error, just nothing to load
       return;
     }
 
     const fetchImageUrl = async () => {
       try {
-        // Ensure pathPrefix ends with a slash if needed
+        // Build full storage path
         const fullPath = `${pathPrefix.endsWith('/') ? pathPrefix : pathPrefix + '/'}${filename}`;
         const imageRef = ref(storage, fullPath);
         const url = await getDownloadURL(imageRef);
@@ -188,34 +188,33 @@ function FirebaseImageViewer({
         } else {
           setError('Could not load image.');
         }
-        setImageUrl(null); // Clear URL on error
+        setImageUrl(null);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchImageUrl();
-  }, [filename, pathPrefix]); // Re-run effect if filename or pathPrefix changes
+  }, [filename, pathPrefix]);
 
-  // --- Render Logic ---
-
+  // Show loading indicator
   if (isLoading) {
     return <p className="text-center p-2 text-sm">Loading image...</p>;
   }
 
+  // Display error message
   if (error) {
     return <p className="text-center text-red-500 p-2 text-sm">Error: {error}</p>;
   }
 
+  // Fallback if no URL is available
   if (!imageUrl) {
-    // This covers the case where filename was initially null/undefined or if URL fetch failed silently
-    // You might choose to render nothing or a specific placeholder here
     return <p className="text-center text-gray-500 p-2 text-sm">Image not available.</p>;
   }
 
-  // Determine effective alt text
+  // Decide alt text prioritizing provided value
   const effectiveAltText =
-    altText || `Attachment: ${filename}` || 'Uploaded image content'; // Provide fallbacks
+    altText || `Attachment: ${filename}` || 'Uploaded image content';
 
   return (
     <img
@@ -225,7 +224,7 @@ function FirebaseImageViewer({
       height={height}
       className={className}
       style={style}
-      loading="lazy" // Good practice for images, especially lists
+      loading="lazy"
     />
   );
 }
