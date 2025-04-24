@@ -46,7 +46,7 @@ export default function Landing() {
           applications.
         </p>
         <Button
-          className="bg-white dark:bg-white text-[color:var(--dark-green)] dark:text-black px-6 py-3 rounded-lg text-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+          className="bg-white dark:bg-white text-[color:var(--dark-green)] dark:text-black px-6 py-3 rounded-lg text-lg hover:bg-gray-300 dark:hover:bg-gray-300"
           onClick={() => navigate('/projects')}
         >
           Explore Developer View
