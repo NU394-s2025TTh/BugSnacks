@@ -25,8 +25,8 @@ export default function Landing() {
           Welcome Debuggers
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 text-center">
-          Dive into the world of debugging and help us find and fix bugs. Claim rewards
-          for your contributions!
+          Dive into the world of debugging and help others find and fix bugs. Claim
+          rewards for your contributions!
         </p>
         <Button
           className="bg-[color:var(--dark-green)] dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg text-lg hover:color:var(--dark-green-hover) dark:hover:bg-gray-300"
