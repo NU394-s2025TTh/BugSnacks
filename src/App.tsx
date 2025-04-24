@@ -27,7 +27,7 @@ import Requests from './pages/Debugger/Requests/requests.page';
 // import AddProject from './components/ProjectForms/AddProject';
 import Bugs from './pages/Developer/Bugs/bugs.page';
 import Projects from './pages/Developer/Projects/projects.page';
-
+import Landing from './pages/Landing/landing.page';
 function App() {
   return (
     <div>
@@ -36,6 +36,7 @@ function App() {
         {/* Wraps the route definitions in a Router */}
         <Router>
           <Routes>
+            <Route path="/landing" element={<Landing />}></Route>
             {/* Base route applies the Layout component */}
             <Route path="/" element={<Layout />}>
               {/* Default route renders the Requests page */}
