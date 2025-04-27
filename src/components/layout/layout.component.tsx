@@ -98,6 +98,7 @@ export default function Layout() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
+      navigate('/landing');
     } catch (err) {
       console.error('Login failed:', err);
     }
