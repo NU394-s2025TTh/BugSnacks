@@ -278,12 +278,25 @@ function Bugs() {
                                 <div className="bg-[color:var(--gray)] p-2 px-12 rounded-3xl text-3xl dark:text-black">
                                   {bug.title}
                                 </div>
-                                <div className="flex flex-col items-end">
-                                  {/* Align content to the right */}
-                                  <div className="text-1xl italic">
-                                    Proposed reward time
-                                  </div>
-                                  <div className="text-1xl text-right">Tomorrow @ 4</div>
+                                <div className="flex flex-col items-end text-right">
+                                  {bug.proposedReward.time != undefined ? (
+                                    <>
+                                      <div className="text-1xl italic">
+                                        Proposed reward time
+                                      </div>
+                                      <div>
+                                        {new Date(
+                                          bug.proposedReward.time,
+                                        ).toLocaleDateString()}{' '}
+                                        @{' '}
+                                        {new Date(
+                                          bug.proposedReward.time,
+                                        ).toLocaleTimeString()}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
                                   <Badge className="text-lg mt-1">
                                     Severity: {bug.severity}
                                   </Badge>{' '}
@@ -316,7 +329,7 @@ function Bugs() {
                               </CardContent>
                               <CardFooter className="flex justify-end">
                                 <Button className="rounded-3xl text-2xl bg-[var(--pastel-green)] p-6 text-black font-semibold">
-                                  View Details
+                                  <a href={'mailto:' + bug.testerId}>Contact Reporter</a>
                                 </Button>
                               </CardFooter>
                             </Card>

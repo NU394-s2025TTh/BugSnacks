@@ -18,7 +18,7 @@ export function useUserId() {
   // Set up the auth state listener when the component mounts
   useEffect(() => {
     // Subscribe to auth state changes and update local state
-    const unsub = onAuthStateChanged(auth, (user) => setUserId(user?.uid ?? null));
+    const unsub = onAuthStateChanged(auth, (user) => setUserId(user?.email ?? null));
     // Clean up the subscription when the component unmounts
     return unsub;
   }, []);

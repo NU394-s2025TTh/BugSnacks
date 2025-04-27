@@ -77,6 +77,7 @@ export interface Reward {
   readonly description?: string;
   readonly location: string;
   readonly type: RewardType;
+  time?: Date;
 }
 
 export interface Project {
@@ -136,6 +137,7 @@ const formSchema = z.object({
   }),
   // Store the selected reward as a stringified JSON
   proposedRewardString: z.string().optional(),
+  proposedRewardTime: z.string().optional().or(z.date().optional()),
   video: z
     .instanceof(FileList)
     .optional()
@@ -201,6 +203,7 @@ function AddBugs({
       description: '',
       severity: BugReportSeverity.LOW,
       proposedRewardString: '',
+      proposedRewardTime: '',
     },
   });
 
@@ -289,6 +292,20 @@ function AddBugs({
       try {
         if (data.proposedRewardString) {
           proposedRewardObject = JSON.parse(data.proposedRewardString) as Reward;
+
+          // Only set time if proposedRewardTime is provided and valid
+          if (data.proposedRewardTime) {
+            try {
+              proposedRewardObject.time = new Date(data.proposedRewardTime);
+              // Check if date is valid
+              if (isNaN(proposedRewardObject.time.getTime())) {
+                console.warn('Invalid date format, skipping reward time');
+                delete proposedRewardObject.time;
+              }
+            } catch (e) {
+              console.warn('Error parsing date:', e);
+            }
+          }
         }
       } catch (e) {
         throw new Error('Invalid reward data selected.');
@@ -407,6 +424,36 @@ function AddBugs({
                 </Select>
                 <FormDescription>
                   Choose one reward offered for completing the selected test request.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/*Datetime Picker */}
+          <FormField
+            control={form.control}
+            name="proposedRewardTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Proposed Reward Time</FormLabel>
+                <FormControl>
+                  <Input
+                    type="datetime-local"
+                    placeholder=""
+                    {...field}
+                    value={
+                      field.value instanceof Date
+                        ? field.value.toISOString().slice(0, 16) // Format Date to YYYY-MM-DDTHH:mm
+                        : typeof field.value === 'string'
+                          ? field.value
+                          : ''
+                    }
+                    onChange={(e) => field.onChange(e.target.value || '')}
+                    disabled={!form.watch('proposedRewardString')}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Propose a reward time for claiming the reward.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
