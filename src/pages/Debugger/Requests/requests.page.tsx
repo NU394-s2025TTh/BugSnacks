@@ -28,7 +28,6 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 // Card layout to group project information
 import { CardSkeleton } from '@/components/ui/CardSkeleton';
 // Skeleton loader displayed while data is being fetched
-// Removed Collapsible imports
 import {
   Dialog,
   DialogContent,
@@ -36,6 +35,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 // Dialog and related components for modal overlay
 import { Separator } from '@/components/ui/separator';
 // Separator line used between header and content
@@ -91,6 +91,22 @@ function Requests() {
   const [projects, setProjects] = useState<[Project, TestRequest[]][]>([]);
   // Controls whether the bug submission dialog is open
   const [dialogOpen, setDialogOpen] = useState(false);
+  // State for search term in the search bar
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  // Lowercase version of searchTerm for easier comparisons
+  const searchTermLower = searchTerm.toLowerCase();
+  // Filter projects and their requests based on searchTerm matching project name/description or request title
+  const filteredProjects = projects
+    .map(([project, testRequests]) => {
+      const matchesProject =
+        project.name.toLowerCase().includes(searchTermLower) ||
+        project.description.toLowerCase().includes(searchTermLower);
+      const filteredRequests = matchesProject
+        ? testRequests
+        : testRequests.filter((tr) => tr.title.toLowerCase().includes(searchTermLower));
+      return [project, filteredRequests] as [Project, TestRequest[]];
+    })
+    .filter(([, filtered]) => searchTerm === '' || filtered.length > 0);
   // Loading flag to show skeleton or content
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
@@ -196,8 +212,17 @@ function Requests() {
 
       <br />
 
-      {projects.length > 0 ? (
-        projects.map((tup, index) => {
+      {/* Search bar UI */}
+      <div className="w-[90%] mx-auto mb-4">
+        <Input
+          placeholder="Search bugs..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {filteredProjects.length > 0 ? (
+        filteredProjects.map((tup, index) => {
           const [project, testRequests] = tup;
           return (
             <div key={project.projectId || index} className="mb-8">

@@ -24,6 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useUserId } from '@/hooks/useUserId';
 
@@ -78,6 +79,17 @@ function Projects() {
   const [projects, setProjects] = useState<[Project, TestRequest[]][]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  // State for search term to filter projects
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const searchTermLower = searchTerm.toLowerCase();
+  // Filter projects by project name, description, or test request titles
+  const filteredProjects = projects.filter(
+    ([project, testRequests]) =>
+      searchTerm === '' ||
+      project.name.toLowerCase().includes(searchTermLower) ||
+      project.description.toLowerCase().includes(searchTermLower) ||
+      testRequests.some((tr) => (tr.title ?? '').toLowerCase().includes(searchTermLower)),
+  );
   const id = useUserId();
   const [searchParams] = useSearchParams();
 
@@ -200,8 +212,17 @@ function Projects() {
 
       <br />
 
-      {projects.length > 0 ? (
-        projects.map((tup, index) => {
+      {/* Search bar UI */}
+      <div className="w-[90%] mx-auto mb-4">
+        <Input
+          placeholder="Search projects..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {filteredProjects.length > 0 ? (
+        filteredProjects.map((tup, index) => {
           const [project, testRequests] = tup;
           return (
             // Using projectId as key, with index as fallback
