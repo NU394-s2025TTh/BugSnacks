@@ -92,20 +92,20 @@ function Requests() {
   const [dialogOpen, setDialogOpen] = useState(false);
   // State for search term in the search bar
   const [searchTerm, setSearchTerm] = useState<string>('');
-  // Filter projects and their requests based on searchTerm (in request title)
-  const filteredProjects = searchTerm
-    ? projects
-        .map(
-          ([project, testRequests]) =>
-            [
-              project,
-              testRequests.filter((tr) =>
-                tr.title.toLowerCase().includes(searchTerm.toLowerCase()),
-              ),
-            ] as [typeof project, typeof testRequests],
-        )
-        .filter(([, filtered]) => filtered.length > 0)
-    : projects;
+  // Lowercase version of searchTerm for easier comparisons
+  const searchTermLower = searchTerm.toLowerCase();
+  // Filter projects and their requests based on searchTerm matching project name/description or request title
+  const filteredProjects = projects
+    .map(([project, testRequests]) => {
+      const matchesProject =
+        project.name.toLowerCase().includes(searchTermLower) ||
+        project.description.toLowerCase().includes(searchTermLower);
+      const filteredRequests = matchesProject
+        ? testRequests
+        : testRequests.filter((tr) => tr.title.toLowerCase().includes(searchTermLower));
+      return [project, filteredRequests] as [Project, TestRequest[]];
+    })
+    .filter(([, filtered]) => searchTerm === '' || filtered.length > 0);
   // Loading flag to show skeleton or content
   const [loading, setLoading] = useState(true);
 
