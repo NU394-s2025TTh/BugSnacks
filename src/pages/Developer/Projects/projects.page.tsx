@@ -81,12 +81,13 @@ function Projects() {
   // State for search term to filter projects
   const [searchTerm, setSearchTerm] = useState<string>('');
   const searchTermLower = searchTerm.toLowerCase();
-  // Filter projects by project name or description
+  // Filter projects by project name, description, or test request titles
   const filteredProjects = projects.filter(
-    ([project]) =>
+    ([project, testRequests]) =>
       searchTerm === '' ||
       project.name.toLowerCase().includes(searchTermLower) ||
-      project.description.toLowerCase().includes(searchTermLower),
+      project.description.toLowerCase().includes(searchTermLower) ||
+      testRequests.some((tr) => (tr.title ?? '').toLowerCase().includes(searchTermLower)),
   );
   const id = useUserId();
 
