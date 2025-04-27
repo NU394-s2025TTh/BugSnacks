@@ -14,7 +14,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import type React from 'react';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
   AlertDialog,
@@ -136,11 +136,15 @@ export function TourProvider({
     width: number;
     height: number;
   } | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const navigate = useNavigate();
 
   // Initialize completion state from localStorage (client-only), fallback to prop.
   const [isCompleted, setIsCompletedInternal] = useState(() => {
+    if (searchParams.get('tour') === 'true') {
+      return false;
+    }
     if (typeof window !== 'undefined') {
       try {
         const storedValue = localStorage.getItem(storageKey);
@@ -196,6 +200,7 @@ export function TourProvider({
   // Advance to next step or finish the tour if on last step.
   const nextStep = useCallback(async () => {
     if (currentStep === steps.length - 1) {
+      setSearchParams();
       setIsTourCompleted(true);
       setCurrentStep(-1);
       onComplete?.();

@@ -9,6 +9,7 @@
 // Most comments made in the file were done by OpenAI's o4-mini model
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 // Assuming AddBugs might be used for creating projects too, or a specific component exists
 import AddProject from '@/components/forms/project-forms/add-project.component';
@@ -78,10 +79,34 @@ function Projects() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const id = useUserId();
+  const [searchParams] = useSearchParams();
 
   const getData = async () => {
+    if (searchParams.get('demo') === 'true') {
+      // Simulate a demo mode with hardcoded data
+      const demoProjects: Project[] = [
+        {
+          projectId: 'demo1',
+          developerId: id as string,
+          campusId: 'demoCampus',
+          name: 'Demo Project 1',
+          description: 'This is a demo project.',
+          platform: Platform.IOS,
+          createdAt: new Date(),
+        },
+      ];
+      const demoTestRequests: TestRequest[] = [];
+      setProjects(demoProjects.map((project) => [project, demoTestRequests]));
+      setLoading(false);
+
+      if (searchParams.get('modal') === 'true') {
+        setDialogOpen(true);
+      }
+      return;
+    }
     try {
       // 1. Fetch Projects for current user
+      setLoading(true);
       const response = await fetch(`/api/users/${id}/projects`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -139,7 +164,7 @@ function Projects() {
     // Only fetch when user ID is available
     if (!id) return;
     getData();
-  }, [id]);
+  }, [id, searchParams]);
 
   return (
     <div>
@@ -152,7 +177,9 @@ function Projects() {
           {/* Controlled dialog for creating a new project */}
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="default">Create new project</Button>
+              <Button variant="default" id="createProject">
+                Create new project
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -251,7 +278,9 @@ function AddTestRequestButton({
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Create a new test request</Button>
+        <Button variant="outline" id="createTestRequest">
+          Create a new test request
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

@@ -30,7 +30,7 @@ export default function Landing() {
         </p>
         <Button
           className="bg-[color:var(--dark-green)] dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg text-lg hover:color:var(--dark-green-hover) dark:hover:bg-gray-300"
-          onClick={() => navigate('/requests')}
+          onClick={() => navigate('/requests?mode=debugger')}
         >
           Explore Debugger View
         </Button>
@@ -47,7 +47,7 @@ export default function Landing() {
         </p>
         <Button
           className="bg-white dark:bg-white text-[color:var(--dark-green)] dark:text-black px-6 py-3 rounded-lg text-lg hover:bg-gray-300 dark:hover:bg-gray-300"
-          onClick={() => navigate('/projects')}
+          onClick={() => navigate('/projects?mode=developer')}
         >
           Explore Developer View
         </Button>

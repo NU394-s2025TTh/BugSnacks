@@ -9,7 +9,6 @@
 
 import '@/App.css';
 
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -18,6 +17,7 @@ import {
   User,
 } from 'firebase/auth';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { Outlet } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
@@ -34,26 +34,75 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
   return <TourProvider>{children}</TourProvider>;
 }
 
-const steps: TourStep[] = [
+const debuggerSteps: TourStep[] = [
   {
     content: (
       <div>Looking to find some bugs and claim rewards? Here is the place for you.</div>
     ),
-    navigateTo: '/requests',
+    navigateTo: '/requests?demo=true',
     selectorId: 'forDebugger',
     position: 'right',
     onClickWithinArea: () => {},
   },
   {
-    navigateTo: '/projects',
-    content: <div>Does your project need testing? This section is the spot.</div>,
+    content: <div>First, find a reward you want to try to claim.</div>,
+    selectorId: 'rewardBadge',
+    position: 'left',
+    onClickWithinArea: () => {},
+  },
+  {
+    content: (
+      <div>
+        Next, read the instructions and go to the site. You can use the link in the
+        instructions.
+      </div>
+    ),
+    selectorId: 'demoUrl',
+    position: 'left',
+    onClickWithinArea: () => {},
+  },
+  {
+    content: (
+      <div>
+        After finding a bug, submit a bug report and wait for a response from the
+        request&apos;s original poster!
+      </div>
+    ),
+    selectorId: 'submitBug',
+    position: 'top',
+    onClickWithinArea: () => {},
+  },
+];
+
+const developerSteps: TourStep[] = [
+  {
+    content: <div>This section is where developers can get started with BugSnacks.</div>,
+    navigateTo: '/projects?demo=true',
     selectorId: 'forDeveloper',
     position: 'right',
     onClickWithinArea: () => {},
   },
   {
-    content: <div>Just getting started? Create a new project.</div>,
+    content: <div>First, create a new project.</div>,
     selectorId: 'createProject',
+    position: 'left',
+    onClickWithinArea: () => {},
+  },
+  {
+    content: (
+      <div>
+        Then, create a test request. Test requests let you specify what types of bugs you
+        are looking for.
+      </div>
+    ),
+    selectorId: 'createTestRequest',
+    position: 'right',
+    onClickWithinArea: () => {},
+  },
+  {
+    content: <div>Once users have submitted bug reports, find them here.</div>,
+    selectorId: 'viewBugsButton',
+    navigateTo: '/bugs?demo=true',
     position: 'right',
     onClickWithinArea: () => {},
   },
@@ -62,10 +111,19 @@ const steps: TourStep[] = [
 export function Toured() {
   const { setSteps } = useTour();
   const [openTour, setOpenTour] = useState(false);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Initialize guided tour steps, then open the tour dialog shortly after mount
-    setSteps(steps);
+    console.log('Toured component mounted');
+    console.log('Mode:', searchParams.keys().toArray());
+    console.log(searchParams.get('mode'));
+    if (searchParams.get('mode') === 'debugger') {
+      setSteps(debuggerSteps);
+    } else if (searchParams.get('mode') === 'developer') {
+      setSteps(developerSteps);
+    } else {
+      setSteps(debuggerSteps.concat(developerSteps));
+    }
     const timer = setTimeout(() => {
       setOpenTour(true);
     }, 100);
@@ -116,11 +174,11 @@ export default function Layout() {
     return (
       <div className="p-8 flex flex-col min-h-screen">
         {/* Show a loading animation while auth state is pending */}
-        <DotLottieReact
+        {/* <DotLottieReact
           src="https://lottie.host/4a5ad354-9119-4a34-b704-2854f3ca707d/QqjS1Wd6f8.lottie"
           loop
           autoplay
-        />
+        /> */}
       </div>
     );
 

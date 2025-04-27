@@ -42,6 +42,7 @@ const data = {
         },
         {
           title: 'View Bugs',
+          id: 'viewBugsButton',
           url: `${window.origin}/bugs`, // modify this page to fit the sidebar structure
           isActive: false,
         },
@@ -87,7 +88,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuSub>
                     {item.items.map((item) => (
                       <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton asChild isActive={item.isActive}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={item.isActive}
+                          id={item.id}
+                        >
                           <a href={item.url}>{item.title}</a>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>

@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import AddBugs from '@/components/forms/bug-forms/add-bugs.component';
 // Component for bug submission form, used inside the dialog
@@ -92,11 +93,48 @@ function Requests() {
   const [dialogOpen, setDialogOpen] = useState(false);
   // Loading flag to show skeleton or content
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
 
   // Fetches projects and their test requests from the API
   const getData = async () => {
+    if (searchParams.get('demo') === 'true') {
+      setLoading(false);
+      setProjects([
+        [
+          {
+            projectId: 'demoProject',
+            developerId: 'demoDeveloper',
+            campusId: 'demoCampus',
+            name: 'Demo Project',
+            description: 'This is a demo project.',
+            platform: Platform.WEB,
+            createdAt: new Date(),
+          },
+          [
+            {
+              id: 'demoRequest',
+              campusID: 'demoCampus',
+              projectId: 'demoProject',
+              developerId: 'demoDeveloper',
+              title: 'Demo Test Request',
+              description: 'This is a demo test request.',
+              demoUrl: 'https://example.com/demo',
+              reward: {
+                name: 'Demo Reward',
+                location: 'Demo Location',
+                type: RewardType.GUEST_SWIPE,
+              },
+              status: TestRequestStatus.OPEN,
+              createdAt: new Date(),
+            },
+          ],
+        ],
+      ]);
+      return;
+    }
     try {
       // Fetch projects list for a specific campus
+      setLoading(true);
       const response = await fetch('/api/projects/campus/northwestern1');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -143,7 +181,7 @@ function Requests() {
   // Run data fetch on component mount
   useEffect(() => {
     getData();
-  }, []);
+  }, [searchParams]);
 
   return (
     <div>
@@ -187,7 +225,13 @@ function Requests() {
                         <h3 className="text-lg font-semibold mb-2">
                           Calls for Testing ({testRequests.length}):
                         </h3>
-                        <Accordion type="single" collapsible className="w-full">
+                        <Accordion
+                          type="single"
+                          className="w-full"
+                          defaultValue={
+                            searchParams.get('demo') ? 'demoRequest' : undefined
+                          }
+                        >
                           {testRequests.map((testRequest) => (
                             <AccordionItem key={testRequest.id} value={testRequest.id}>
                               <AccordionTrigger>
@@ -202,6 +246,7 @@ function Requests() {
                                         fontSize: '1rem',
                                         backgroundColor: 'var(--pastel-green)',
                                       }}
+                                      id="rewardBadge"
                                     >
                                       Reward:{' '}
                                       {Array.isArray(testRequest.reward)
@@ -277,7 +322,7 @@ function TestRequestSection({ testRequest }: { testRequest: TestRequest }) {
   }
 
   return (
-    <div>
+    <div id="demoUrl">
       <p className="mb-1">{testRequest.description || 'No description provided.'}</p>
       {testRequest.demoUrl && (
         <p>
@@ -313,7 +358,9 @@ function SubmitBugDialog({
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Report a bug for this request</Button>
+        <Button variant="outline" id="submitBug">
+          Report a bug for this request
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

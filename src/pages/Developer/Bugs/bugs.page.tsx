@@ -10,6 +10,7 @@
 
 'use client';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -87,9 +88,24 @@ function Bugs() {
   const [bugReports, setBugReports] = useState<BugReport[]>([]);
   const [loading, setLoading] = useState(true);
   const id = useUserId();
+  const [searchParams] = useSearchParams();
 
   // only fetch when user ID is available
   useEffect(() => {
+    if (searchParams.get('demo') === 'true') {
+      setProjects([
+        {
+          projectId: 'demo-project',
+          developerId: 'demo-developer',
+          campusId: 'demo-campus',
+          name: 'Demo Project',
+          description: 'This is a demo project.',
+          platform: 'Web',
+          createdAt: new Date(),
+        },
+      ]);
+      return;
+    }
     if (!id) return;
     const fetchProjects = async () => {
       try {
@@ -104,10 +120,28 @@ function Bugs() {
     };
     // ⛔ Don’t fetch until user ID is ready
     fetchProjects();
-  }, [id]);
+  }, [id, searchParams]);
 
   // Once projects are loaded, fetch test requests for each project
   useEffect(() => {
+    if (searchParams.get('demo') === 'true') {
+      setTestRequests([
+        {
+          requestId: 'demo-request',
+          projectId: 'demo-project',
+          developerId: 'demo-developer',
+          title: 'Demo Test Request',
+          description: 'This is a demo test request.',
+          demoUrl: 'https://example.com/demo',
+          reward: {
+            name: 'Demo Reward',
+            location: 'Demo Location',
+            type: RewardType.GUEST_SWIPE,
+          },
+        },
+      ]);
+      return;
+    }
     const fetchTestRequestsForProjects = async () => {
       let allTestRequests: TestRequest[] = [];
       // fetch all test requests in parallel, one per project
@@ -136,10 +170,30 @@ function Bugs() {
     if (projects.length > 0) {
       fetchTestRequestsForProjects();
     }
-  }, [projects]);
+  }, [projects, searchParams]);
 
   // Once test requests are loaded, fetch bug reports for each test request
   useEffect(() => {
+    if (searchParams.get('demo') === 'true') {
+      setBugReports([
+        {
+          reportId: 'demo-report',
+          requestId: 'demo-request',
+          testerId: 'demo-tester',
+          title: 'Demo Bug Report',
+          description: 'This is a demo bug report.',
+          severity: BugReportSeverity.MEDIUM,
+          proposedReward: {
+            name: 'Demo Reward',
+            location: 'Demo Location',
+            type: RewardType.GUEST_SWIPE,
+          },
+          video: undefined,
+          attachments: [],
+        },
+      ]);
+      return;
+    }
     const fetchBugReportsForTestRequests = async () => {
       let allBugReports: BugReport[] = [];
       // fetch bug reports in parallel for each request
@@ -171,7 +225,7 @@ function Bugs() {
     if (testRequests.length > 0) {
       fetchBugReportsForTestRequests();
     }
-  }, [testRequests]);
+  }, [testRequests, searchParams]);
 
   return (
     <div>
